@@ -13,7 +13,7 @@ export default function RiskPage() {
         <div className="mt-6 border-l-2 border-gold bg-gold/[.05] p-4"><p className="text-[10px] font-bold text-gold">AI RECOMMENDATION</p><p className="mt-2 text-[11px] leading-5 text-mist">Initiate secondary physical reconciliation at Hold E-7. Custody signature is inconsistent with expected handler sequence.</p></div>
       </section>
       <section className="glass p-6"><SectionHeading eyebrow="Prioritized decision queue" title="Assets requiring review" action={<span className="flex items-center gap-2 text-[9px] text-emerald-300"><Activity size={12}/> Model online</span>}/>
-        <div className="space-y-2">{bags.slice().sort((a,b)=>b.risk-a.risk).map((b,i)=><div key={b.id} className="grid grid-cols-[42px_1fr_auto] items-center gap-4 border border-white/[.07] bg-white/[.02] p-4">
+        <div className="space-y-2">{bags.slice().sort((a,b)=>b.risk-a.risk).map((b)=><div key={b.id} className="grid grid-cols-[42px_1fr_auto] items-center gap-4 border border-white/[.07] bg-white/[.02] p-4">
           <div className={`grid h-10 w-10 place-items-center font-display text-lg ${b.risk>80?"bg-red-400/10 text-red-300":b.risk>50?"bg-amber-400/10 text-amber-300":"bg-emerald-400/10 text-emerald-300"}`}>{b.risk}</div>
           <div><div className="flex flex-wrap items-center gap-2"><p className="font-mono text-[11px] font-bold text-cyan">{b.id}</p><Badge tone={b.risk>80?"red":b.risk>50?"amber":"emerald"}>{b.level}</Badge></div><p className="mt-1.5 text-[10px] text-mist">{b.flight} · {b.zone} · {b.passenger}</p></div>
           <button className="text-[9px] font-bold uppercase tracking-wider text-gold">Review →</button></div>)}</div>

@@ -2,6 +2,9 @@ import { AlertTriangle, BriefcaseBusiness, Plane, ScanLine } from "lucide-react"
 import { AppShell } from "@/components/shell";
 import { Badge, MetricCard, Progress, SectionHeading, StatusDot } from "@/components/ui";
 import { alerts, flights } from "@/lib/data";
+import { CustodyChart } from "@/components/dashboard/CustodyChart";
+import { IncidentTrend } from "@/components/dashboard/IncidentTrend";
+import { RiskChart } from "@/components/dashboard/RiskChart";
 
 export default function DashboardPage() {
   return (
@@ -44,6 +47,11 @@ export default function DashboardPage() {
         <div className="flex h-32 items-end gap-1">{[31,28,22,19,17,23,41,67,84,72,64,77,89,93,84,76,82,91,96,88,71,58,46,38].map((v,i)=><div key={i} className="group relative flex-1 bg-cyan/15 hover:bg-cyan/40" style={{height:`${v}%`}}><span className="absolute -top-5 hidden text-[8px] text-cyan group-hover:block">{v}k</span></div>)}</div>
         <div className="mt-2 flex justify-between font-mono text-[8px] text-mist"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
       </section>
+      <div className="mt-6 grid gap-6 xl:grid-cols-3">
+        <section className="glass p-5"><SectionHeading eyebrow="Custody stages" title="Events by operational stage"/><CustodyChart/></section>
+        <section className="glass p-5"><SectionHeading eyebrow="AI distribution" title="Portfolio risk bands"/><RiskChart/></section>
+        <section className="glass p-5"><SectionHeading eyebrow="Security posture" title="Incident trend"/><IncidentTrend/><div className="grid grid-cols-2 gap-2 border-t border-white/[.07] pt-4 text-[10px]"><span className="text-mist">Avg custody confidence</span><b className="text-right text-emerald-300">97.8%</b><span className="text-mist">Misrouting risk</span><b className="text-right">0.18%</b><span className="text-mist">High-risk corridors</span><b className="text-right text-amber-300">3</b></div></section>
+      </div>
     </AppShell>
   );
 }
