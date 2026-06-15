@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: #f5f2e9;
+  background: #071522;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+::selection { background: rgba(215, 169, 59, .35); }
+
+.grid-field {
+  background-image:
+    linear-gradient(rgba(110,216,224,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110,216,224,.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.dot-field {
+  background-image: radial-gradient(rgba(169,183,196,.2) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.glass {
+  background: linear-gradient(145deg, rgba(16,43,64,.84), rgba(10,29,45,.72));
+  border: 1px solid rgba(169,183,196,.13);
+  box-shadow: 0 22px 60px rgba(0,0,0,.18);
+  backdrop-filter: blur(18px);
+}
+
+.gold-line {
+  background: linear-gradient(90deg, transparent, #d7a93b, transparent);
+}
+
+.map-grid {
+  background-color: #0a2031;
+  background-image:
+    radial-gradient(circle at 68% 32%, rgba(110,216,224,.11), transparent 20%),
+    linear-gradient(rgba(110,216,224,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110,216,224,.07) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+@keyframes pulse-ring {
+  0% { transform: scale(.7); opacity: .8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.pulse-ring { animation: pulse-ring 2s ease-out infinite; }
