@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bell, ChevronDown, CircleHelp, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./logo";
+import { BackButton } from "./ui/BackButton";
 import { navItems } from "@/lib/data";
 
 export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlanta International" }: {
@@ -61,7 +62,7 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
             <div className="hidden items-center gap-2 px-2 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/><span className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">Systems nominal</span></div>
           </div>
         </header>
-        <main className="min-h-[calc(100vh-76px)] p-5 md:p-10">{children}</main>
+        <main className="min-h-[calc(100vh-76px)] p-5 md:p-10">{pathname !== "/dashboard" && <div className="mb-5"><BackButton /></div>}{children}</main>
       </div>
     </div>
   );

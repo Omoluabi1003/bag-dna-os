@@ -1,18 +1,11 @@
 import { Badge } from "@/components/ui";
 
 const services = [
-  ["Open-Meteo", "Ready", "Keyless weather and environmental risk context", "emerald"],
-  ["OpenSky", "Fallback ready", "Public movement context with deterministic beta fallback", "emerald"],
-  ["OurAirports", "Seeded", "Nigeria and international airport metadata", "cyan"],
-  ["REST Countries", "Ready", "Country, flag, and regional corridor context", "emerald"],
-  ["GeoJSON", "Local", "Airports, zones, corridors, and baggage trails", "cyan"],
-  ["OpenStreetMap / Overpass", "Adapter ready", "No hard dependency on live calls", "cyan"],
-  ["Supabase", "Future", "Governed identity and event persistence", "slate"],
-  ["ArcGIS", "Future", "Authoritative airport geospatial services", "slate"],
-  ["ArcGIS Velocity", "Future", "Streaming sensor and geofence telemetry", "slate"],
-  ["ArcGIS Indoors", "Future", "Indoor positioning and restricted routing", "slate"],
-  ["Airline systems", "Future", "DCS, BRS, BHS, EDS, and AODB integration", "slate"],
-  ["Identity hardware", "Future", "RFID, NFC, seals, scales, and vision stations", "slate"],
+  ["Weather Intelligence", "Active", "Airport weather, wind, rain, visibility and environmental risk", "emerald"],
+  ["Aircraft Movement Context", "Active", "Airspace movement awareness with continuity protection", "emerald"],
+  ["Airport Metadata Intelligence", "Active", "IATA, ICAO, location and gateway role coverage", "cyan"],
+  ["Country and Corridor Intelligence", "Active", "Country, region and cross-border corridor context", "emerald"],
+  ["Geospatial Route Intelligence", "Active", "Airports, zones, corridors and baggage movement trails", "cyan"],
 ] as const;
 
 export function IntegrationStatusPanel() {
