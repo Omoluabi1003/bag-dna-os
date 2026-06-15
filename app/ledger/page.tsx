@@ -1,0 +1,5 @@
+import { Database, Link2, ShieldCheck } from "lucide-react";
+import { AppShell } from "@/components/shell";
+import { MetricCard, SectionHeading } from "@/components/ui";
+import { LedgerTable } from "@/components/ledger/LedgerTable";
+export default function LedgerPage(){return <AppShell title="Tamper-Evident Evidence Ledger"><div className="grid gap-4 sm:grid-cols-3"><MetricCard label="Evidence events" value="48.2M" change="+8.4%" detail="lifetime" icon={Database}/><MetricCard label="Chain integrity" value="100%" change="+0.01%" detail="verified" icon={Link2}/><MetricCard label="Agency exports" value="184" change="+12" detail="this month" icon={ShieldCheck}/></div><section className="glass mt-6 p-5"><SectionHeading eyebrow="Blockchain-style evidence architecture" title="Immutable custody records"/><p className="mb-6 max-w-3xl text-xs leading-6 text-mist">Each custody event is linked to the prior event hash, creating a defensible tamper-evident evidence trail without requiring a public blockchain. Records are export-ready for airport, insurer, customs, and legal review.</p><LedgerTable/></section></AppShell>}

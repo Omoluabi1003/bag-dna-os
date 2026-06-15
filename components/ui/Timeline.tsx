@@ -1,0 +1,4 @@
+import { Check, Clock3 } from "lucide-react";
+export function Timeline({ items }:{items:{title:string;time:string;detail:string;active?:boolean}[]}) {
+ return <div className="relative space-y-4 before:absolute before:bottom-5 before:left-4 before:top-5 before:w-px before:bg-white/10">{items.map((x)=><div className="relative grid grid-cols-[32px_1fr] gap-4" key={x.title}><div className={`z-10 grid h-8 w-8 place-items-center rounded-full border ${x.active?"border-gold bg-gold/10 text-gold":"border-emerald-400/30 bg-emerald-400/10 text-emerald-300"}`}>{x.active?<Clock3 size={13}/>:<Check size={13}/>}</div><div className="border border-white/[.07] bg-white/[.02] p-4"><div className="flex justify-between"><b className="text-xs">{x.title}</b><span className="font-mono text-[9px] text-mist">{x.time}</span></div><p className="mt-2 text-[10px] text-mist">{x.detail}</p></div></div>)}</div>;
+}

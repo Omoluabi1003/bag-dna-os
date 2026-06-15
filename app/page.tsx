@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Check, ChevronRight, Fingerprint, Globe2, Network, Radar, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Fingerprint, Globe2, Network, Radar, ShieldAlert, Sparkles } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const capabilities = [
@@ -69,6 +69,21 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="border-b border-white/[.07] py-28">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr]">
+            <div><p className="text-[10px] font-bold uppercase tracking-[.24em] text-red-300">The unresolved identity gap</p><h2 className="mt-5 font-display text-4xl font-semibold leading-tight">A paper tag is not a security identity.</h2><p className="mt-6 text-sm leading-7 text-mist">Tags can be photographed, cloned, diverted, or moved to another bag—creating exposure to theft, substitution, narcotics logistics, insider manipulation, passenger misidentification, legal claims, and airport reputation damage.</p></div>
+            <div className="grid gap-3 sm:grid-cols-2">{["Stolen or cloned baggage identities","Luggage substitution and diversion","Insider handling manipulation","Narcotics transit exploitation","Passenger claim misidentification","Legal, diplomatic, and insurance exposure"].map((x,i)=><div className="flex gap-4 border border-white/[.08] bg-white/[.02] p-5" key={x}><ShieldAlert size={17} className={i<2?"text-red-300":"text-amber-300"}/><span className="text-xs">{x}</span></div>)}</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/[.07] bg-[#091b2a] py-28">
+        <div className="mx-auto max-w-7xl px-6"><p className="text-[10px] font-bold uppercase tracking-[.24em] text-gold">Identity-first custody</p><h2 className="mt-5 max-w-3xl font-display text-4xl font-semibold">Eight verified steps. One defensible journey.</h2><div className="mt-10 grid gap-px bg-white/[.08] sm:grid-cols-2 lg:grid-cols-4">{["Check-in","Digital ID creation","AI visual fingerprint","RFID / NFC custody","Screening verification","Loading verification","GIS location tracking","Passenger claim confirmation"].map((x,i)=><div className="bg-[#0b2134] p-5" key={x}><span className="font-mono text-[9px] text-gold">0{i+1}</span><h3 className="mt-8 text-sm font-bold">{x}</h3><p className="mt-2 text-[10px] leading-5 text-mist">{["Passenger, journey, weight and dimensions are reconciled.","A persistent BAG-DNA identity is securely minted.","Computer vision extracts durable physical attributes.","Every custody handoff receives sensor evidence.","Identity, seal and screening results are reconciled.","Bag-to-flight and handler assignments are confirmed.","Movement is mapped across airport operational zones.","Passenger and bag identity close the custody chain."][i]}</p></div>)}</div></div>
+      </section>
+
+      <section className="py-28"><div className="mx-auto max-w-7xl px-6"><div className="flex flex-wrap items-end justify-between gap-5"><div><p className="text-[10px] font-bold uppercase tracking-[.24em] text-gold">Pilot opportunity</p><h2 className="mt-5 font-display text-4xl font-semibold">Start where identity risk is highest.</h2></div><Link href="/pilot" className="text-[10px] font-bold uppercase tracking-widest text-cyan">Explore deployment strategy →</Link></div><div className="mt-9 grid gap-3 md:grid-cols-5">{["Canada → Africa","North America → Caribbean","Europe → Africa","Latin America transit","High-risk narcotics routes"].map((x,i)=><div className="glass p-5" key={x}><Globe2 size={17} className="text-cyan"/><h3 className="mt-8 text-xs font-bold">{x}</h3><p className="mt-2 text-[9px] text-mist">{["High readiness","High volume","Elevated controls","Transit intelligence","Agency-led pilot"][i]}</p></div>)}</div></div></section>
+
       <section id="platform" className="relative border-y border-white/[.07] bg-[#091b2a] py-28">
         <div className="mx-auto max-w-7xl px-6">
           <div className="grid gap-12 lg:grid-cols-[.75fr_1.25fr]">
@@ -107,6 +122,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      <section className="border-y border-white/[.07] bg-gold py-16 text-ink"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-6 lg:flex-row lg:items-center"><div><p className="text-[10px] font-bold uppercase tracking-[.22em]">The infrastructure layer for baggage trust</p><h2 className="mt-3 font-display text-3xl font-semibold">Every passenger has an identity. Every bag should too.</h2></div><div className="flex flex-wrap gap-3"><Link href="/dashboard" className="bg-ink px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-ivory">View command dashboard</Link><Link href="/pilot" className="border border-ink px-5 py-3 text-[10px] font-bold uppercase tracking-widest">Explore pilot strategy</Link><Link href="/passenger" className="border border-ink px-5 py-3 text-[10px] font-bold uppercase tracking-widest">Open passenger portal</Link></div></div></section>
       <footer className="border-t border-white/[.07] py-8"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6"><Logo/><p className="text-[9px] uppercase tracking-widest text-mist">© 2026 ETL GIS Consulting LLC · Aviation intelligence, engineered.</p></div></footer>
     </main>
   );

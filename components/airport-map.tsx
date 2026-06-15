@@ -11,7 +11,7 @@ export function AirportMap({ heat = false }: { heat?: boolean }) {
       <path d="M300 270h155M590 242h160" stroke="#A9B7C4" strokeOpacity=".2" strokeWidth="28"/>
     </svg>
     {heat && heatPoints.map((p,i)=><div key={i} className="absolute h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl" style={{left:`${p.x}%`,top:`${p.y}%`,background:`rgba(${p.value>70?"248,113,113":"245,158,11"},${.08+p.value/600})`}}/>)}
-    {zones.map((z,i)=><div key={z.code} className="absolute -translate-x-1/2 -translate-y-1/2" style={{left:`${z.x}%`,top:`${z.y}%`}}>
+    {zones.map((z)=><div key={z.code} className="absolute -translate-x-1/2 -translate-y-1/2" style={{left:`${z.x}%`,top:`${z.y}%`}}>
       <span className={`pulse-ring absolute -inset-3 rounded-full border ${z.status==="Elevated"?"border-red-400":"border-cyan/60"}`}/>
       <span className={`relative block h-3 w-3 rotate-45 border-2 ${z.status==="Elevated"?"border-red-300 bg-red-400":"border-cyan bg-ink"}`}/>
       <div className="absolute left-4 top-[-10px] w-28 bg-ink/80 px-2 py-1.5 backdrop-blur"><p className="text-[9px] font-bold text-ivory">{z.name}</p><p className="mt-0.5 text-[8px] text-mist">{z.load}% capacity</p></div>

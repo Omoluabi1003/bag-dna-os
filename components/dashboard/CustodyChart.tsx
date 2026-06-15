@@ -1,0 +1,4 @@
+"use client";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+const data=[["Check-in",1940],["Screen",1872],["Sort",1828],["Load",1704],["Arrive",1210],["Claim",982]].map(([stage,value])=>({stage,value}));
+export function CustodyChart(){return <div className="h-56"><ResponsiveContainer><AreaChart data={data}><defs><linearGradient id="custody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d7a93b" stopOpacity=".5"/><stop offset="1" stopColor="#d7a93b" stopOpacity="0"/></linearGradient></defs><CartesianGrid stroke="#ffffff0d" vertical={false}/><XAxis dataKey="stage" stroke="#7890a2" fontSize={9}/><YAxis stroke="#7890a2" fontSize={9}/><Tooltip contentStyle={{background:"#0b2134",border:"1px solid #ffffff1a",fontSize:11}}/><Area dataKey="value" stroke="#d7a93b" fill="url(#custody)"/></AreaChart></ResponsiveContainer></div>}

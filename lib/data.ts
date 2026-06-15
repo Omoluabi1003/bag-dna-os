@@ -58,6 +58,8 @@ export const navItems = [
   { label: "Chain of Custody", href: "/custody" },
   { label: "AI Risk", href: "/risk" },
   { label: "Digital Twin", href: "/digital-twin" },
-  { label: "Passenger Portal", href: "/track" },
-  { label: "Intelligence", href: "/intelligence" },
+  { label: "Passenger Portal", href: "/passenger" },
+  { label: "Evidence Ledger", href: "/ledger" },
+  { label: "Security Modules", href: "/secure-tags" },
+  { label: "Pilot Strategy", href: "/pilot" },
 ];
