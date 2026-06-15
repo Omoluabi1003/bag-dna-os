@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { ArrowRight, Database, MapPinned, RadioTower, ShieldCheck } from "lucide-react";
+import { AppShell } from "@/components/shell";
+import { Badge, SectionHeading } from "@/components/ui";
+import { IntegrationStatusPanel } from "@/components/integrations/IntegrationStatusPanel";
+import { LiveDataPanel } from "@/components/integrations/LiveDataPanel";
+
+export default function IntegrationsPage() {
+  return <AppShell title="Free API Roadmap" eyebrow="Resilient integration architecture">
+    <div className="grid gap-7 xl:grid-cols-[1.1fr_.9fr]"><div><Badge tone="emerald">No paid keys required for beta</Badge><h2 className="mt-5 max-w-3xl text-4xl font-semibold tracking-[-.04em] md:text-6xl">Public context, without fragile dependencies.</h2><p className="mt-5 max-w-2xl text-sm leading-7 text-mist">BAG-DNA OS treats public services as enrichment—not a single point of failure. Every beta adapter returns typed data, identifies its mode, and degrades to safe local context.</p><div className="mt-8 grid gap-3 sm:grid-cols-2">{[[RadioTower,"Keyless public APIs","Open-Meteo and REST Countries enrich corridor context."],[MapPinned,"Local geospatial truth","Versioned GeoJSON supports airports, zones, corridors, and trails."],[Database,"Seeded airport layer","OurAirports-compatible records cover priority Nigerian gateways."],[ShieldCheck,"Graceful degradation","Timeouts and service failures never crash the product experience."]].map(([Icon,title,text])=>{const C=Icon as typeof RadioTower;return <div key={String(title)} className="glass p-5"><C className="text-cyan"/><h3 className="mt-4 text-sm font-semibold">{String(title)}</h3><p className="mt-2 text-[11px] leading-5 text-mist">{String(text)}</p></div>})}</div></div><LiveDataPanel/></div>
+    <section className="glass mt-8 p-6"><SectionHeading eyebrow="Current and future services" title="Integration status"/><IntegrationStatusPanel/></section>
+    <section className="glass mt-8 p-6"><SectionHeading eyebrow="Enterprise path" title="From public beta to governed operations"/><div className="grid gap-4 md:grid-cols-4">{[["01","Public context","Weather, country, airport, and movement enrichment."],["02","Pilot data room","Governed airport exports and agreed operational definitions."],["03","System interfaces","BRS, BHS, DCS, EDS, AODB, GIS, and identity hardware."],["04","National intelligence","Cross-airport corridor and agency decision support."]].map(([n,title,text])=><article key={n} className="border-l border-cyan/30 pl-4"><b className="text-xs text-gold">{n}</b><h3 className="mt-5 text-sm font-semibold">{title}</h3><p className="mt-2 text-[11px] leading-5 text-mist">{text}</p></article>)}</div><Link href="/investors" className="mt-8 inline-flex items-center gap-2 text-xs font-semibold text-cyan">See the commercial expansion path <ArrowRight size={14}/></Link></section>
+  </AppShell>;
+}

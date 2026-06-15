@@ -6,6 +6,17 @@ import { CustodyChart } from "@/components/dashboard/CustodyChart";
 import { IncidentTrend } from "@/components/dashboard/IncidentTrend";
 import { RiskChart } from "@/components/dashboard/RiskChart";
 
+const nigeriaSignals = [
+  ["Lagos hub activity", "4,820 bags", "Peak international bank"],
+  ["Abuja hub activity", "2,140 bags", "Domestic transfer pressure"],
+  ["Lagos → Abuja", "14 risk", "High-volume domestic proof corridor"],
+  ["Lagos → London", "31 risk", "Claims and customs intelligence value"],
+  ["Abuja → Dubai", "27 risk", "International outbound watch"],
+  ["Domestic baggage volume", "68%", "Nigeria network share"],
+  ["Outbound risk", "2.7%", "Enhanced reconciliation candidates"],
+  ["Claim dispute indicators", "43", "Evidence review opportunities"],
+];
+
 export default function DashboardPage() {
   return (
     <AppShell title="Aviation Operations Dashboard">
@@ -23,6 +34,11 @@ export default function DashboardPage() {
         <MetricCard label="Custody compliance" value="99.84%" change="+0.12%" detail="30-day trend" icon={ScanLine}/>
         <MetricCard label="Open exceptions" value="17" change="−18.1%" detail="4 high priority" icon={AlertTriangle}/>
       </div>
+      <section className="glass mt-7 p-6 md:p-7">
+        <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="amber">Beta data mode</Badge>}/>
+        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">A pilot-facing view for airport authorities, airlines, customs, security teams, and investors. Figures are simulated until governed operational feeds are connected.</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{nigeriaSignals.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><p className="mt-3 text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[10px] leading-4 text-cyan">{detail}</p></article>)}</div>
+      </section>
       <div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
         <section className="glass p-6 md:p-7">
           <SectionHeading eyebrow="Departure bank 03" title="Flight load progression" action={<button className="text-[9px] font-bold uppercase tracking-wider text-cyan">View all flights →</button>}/>

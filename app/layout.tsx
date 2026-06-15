@@ -2,39 +2,47 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
+  process.env.NEXT_PUBLIC_APP_URL ??
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000");
+    : "https://bag-dna-os.vercel.app");
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "BAG-DNA OS™",
+  title: {
+    default: "BAG-DNA OS™ | Aviation Baggage Intelligence",
+    template: "%s | BAG-DNA OS™",
+  },
   description:
     "Digital Baggage Identity and Chain-of-Custody Intelligence Platform",
   applicationName: "BAG-DNA OS",
-  manifest: "/site.webmanifest",
+  alternates: { canonical: "/" },
+  keywords: ["aviation baggage intelligence", "digital baggage identity", "Nigeria aviation", "airport GIS", "chain of custody"],
+  manifest: `${basePath}/manifest.webmanifest`,
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: `${basePath}/favicon.ico` },
+      { url: `${basePath}/favicon-16x16.png`, sizes: "16x16", type: "image/png" },
+      { url: `${basePath}/favicon-32x32.png`, sizes: "32x32", type: "image/png" },
     ],
     apple: [
       {
-        url: "/apple-touch-icon.png",
+        url: `${basePath}/apple-touch-icon.png`,
         sizes: "180x180",
         type: "image/png",
       },
     ],
   },
   openGraph: {
+    type: "website",
+    url: siteUrl,
     siteName: "BAG-DNA OS™",
     title: "BAG-DNA OS™",
     description: "The Digital Identity Layer for Every Checked Bag.",
     images: [
       {
-        url: "/bag-dna-logo.png",
+        url: `${basePath}/bag-dna-logo.png`,
         width: 1024,
         height: 1024,
         alt: "BAG-DNA OS logo",
@@ -45,8 +53,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BAG-DNA OS™",
     description: "The Digital Identity Layer for Every Checked Bag.",
-    images: ["/bag-dna-logo.png"],
+    images: [`${basePath}/bag-dna-logo.png`],
   },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {

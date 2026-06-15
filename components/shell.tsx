@@ -29,7 +29,7 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
           <ChevronDown size={13} className="text-mist"/>
         </div>
         <p className="mb-3 mt-8 text-[9px] font-bold uppercase tracking-[.2em] text-mist/60">Mission control</p>
-        <nav className="space-y-1">
+        <nav className="scrollbar-none max-h-[calc(100vh-265px)] space-y-1 overflow-y-auto pb-28">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[12px] font-medium transition ${pathname === item.href ? "bg-white/[.08] text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,.05)]" : "text-mist hover:bg-white/[.04] hover:text-ivory"}`}>

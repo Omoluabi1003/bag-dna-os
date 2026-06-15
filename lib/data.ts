@@ -54,6 +54,7 @@ export const riskFactors = [
 
 export const navItems = [
   { label: "Operations", href: "/dashboard" },
+  { label: "Nigeria Intelligence", href: "/intelligence" },
   { label: "Identity Registry", href: "/registry" },
   { label: "Chain of Custody", href: "/custody" },
   { label: "AI Risk", href: "/risk" },
@@ -62,4 +63,7 @@ export const navItems = [
   { label: "Evidence Ledger", href: "/ledger" },
   { label: "Security Modules", href: "/secure-tags" },
   { label: "Pilot Strategy", href: "/pilot" },
+  { label: "Beta Readiness", href: "/beta" },
+  { label: "API Roadmap", href: "/integrations" },
+  { label: "Investor Readiness", href: "/investors" },
 ];

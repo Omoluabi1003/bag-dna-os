@@ -59,15 +59,60 @@ Open `http://localhost:3000`. The MVP operates without external service credenti
 npm run lint
 npm run typecheck
 npm run build
-npm start
 ```
 
-## Deploy to Vercel
+## Deployment targets
 
-1. Import the GitHub repository in Vercel.
-2. Keep the detected **Next.js** framework preset.
-3. Add the variables from `.env.example` when integration credentials are available.
-4. Deploy. No custom build command or output directory is required.
+### Vercel (primary and full-feature target)
+
+Vercel is the production target for BAG-DNA OS. The repository contains a root-level `package.json`, and the standard `npm run build` command produces the `.next` application. Use these exact settings in **Vercel → Project Settings**:
+
+| Setting | Required value |
+| --- | --- |
+| Git repository | `Omoluabi1003/bag-dna-os` |
+| Production Branch | `main` |
+| Root Directory | blank or `/` |
+| Framework Preset | `Next.js` |
+| Build Command | `npm run build` |
+| Output Directory | `.next` |
+| Install Command | `npm install` |
+
+Add `NEXT_PUBLIC_APP_URL=https://bag-dna-os.vercel.app` in the Production environment. Then open **Deployments**, redeploy the latest `main` commit to Production, and verify that `bag-dna-os.vercel.app` is assigned under **Settings → Domains**.
+
+> A successful preview URL does not automatically prove that the custom production alias, Git repository, or production branch is configured. Those controls live in the Vercel project, not in this repository.
+
+### GitHub Pages (optional static demonstration)
+
+GitHub Pages is static hosting. It cannot replace Vercel for future authenticated, server-rendered, database-backed, webhook, or API-route functionality. The current public MVP is statically exportable, so a separate build mode is provided without changing the normal Vercel build:
+
+```bash
+npm run build         # Vercel / Next.js production build
+npm run build:pages   # Static export to out/ with /bag-dna-os base path
+```
+
+The workflow at `.github/workflows/deploy-pages.yml` deploys the static export after a push to `main` or a manual dispatch. In GitHub, select **Settings → Pages → Build and deployment → Source: GitHub Actions**. The expected URL is `https://omoluabi1003.github.io/bag-dna-os/`.
+
+The Pages build uses `output: "export"`, `trailingSlash`, unoptimized images, `basePath`, and `assetPrefix` only when `PAGES_BUILD=true`. Vercel continues to use the default Next.js configuration.
+
+## Beta data and public integrations
+
+The MVP does not require paid API keys. Public services are isolated behind typed adapters and use deterministic fallback data when calls fail:
+
+- **Open-Meteo:** keyless weather, wind, precipitation, and visibility-style context.
+- **OpenSky Network:** public aircraft movement context with safe fallback records.
+- **OurAirports:** local Nigerian and priority international airport seed records, ready for CSV ingestion.
+- **REST Countries:** country, region, and flag context.
+- **OpenStreetMap / Overpass:** adapter-ready infrastructure context with no live dependency.
+- **Local GeoJSON:** versioned airports, corridors, airport zones, and baggage movement trails.
+
+The interface explicitly labels simulated content as **Beta data mode** and displays loading, live, and degraded states. Public API data is contextual only and must not be used for live aviation or security decisions.
+
+## Public beta routes
+
+- `/beta` — deployment posture, data coverage, limitations, and service status.
+- `/integrations` — free API roadmap and future enterprise integration path.
+- `/investors` — problem, market, wedge, pilot strategy, revenue model, and expansion path.
+- `/dashboard` — Nigeria Aviation Intelligence Hub and operational product demonstration.
 
 ## Future integrations
 
@@ -87,3 +132,13 @@ The deployment pathway begins with a controlled airport demonstration, then prog
 ETL GIS Consulting LLC is the technology strategy and implementation company behind BAG-DNA OS. Its capabilities include enterprise GIS architecture, AI-integrated automation, spatial analytics, digital governance modernization, public-sector decision systems, operational intelligence dashboards, and data-driven security workflows.
 
 > This repository is an investor- and pilot-ready MVP using realistic demonstration data. Production deployment requires stakeholder governance, privacy and security review, system integration, hardware certification, and operating-procedure validation.
+
+## Production redeployment checklist
+
+1. Merge the release commit into `main`.
+2. Confirm the Vercel project is linked to `Omoluabi1003/bag-dna-os`.
+3. Confirm **Production Branch** is `main` and **Root Directory** is blank.
+4. Add `NEXT_PUBLIC_APP_URL=https://bag-dna-os.vercel.app`.
+5. Redeploy the latest `main` deployment as **Production**.
+6. Confirm `https://bag-dna-os.vercel.app`, metadata, icons, canonical URL, and social preview.
+7. Optionally enable GitHub Actions as the Pages source and run **Deploy static demo to GitHub Pages**.
