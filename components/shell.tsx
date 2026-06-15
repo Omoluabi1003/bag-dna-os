@@ -2,10 +2,11 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Bell, ChevronDown, CircleHelp, Menu, Search, ShieldCheck, X } from "lucide-react";
+import { ChevronDown, CircleHelp, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./logo";
 import { BackButton } from "./ui/BackButton";
+import { NotificationAlertCenter } from "./notifications/NotificationAlertCenter";
 import { navItems } from "@/lib/data";
 
 export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlanta International" }: {
@@ -58,7 +59,7 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
           </div>
           <div className="flex items-center gap-2">
             <button className="hidden h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.04] px-3.5 text-[11px] text-mist transition hover:bg-white/[.07] md:flex"><Search size={14}/> Search assets <kbd className="ml-3 text-[9px]">⌘ K</kbd></button>
-            <button aria-label="Notifications" className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/[.08] bg-white/[.025] text-mist transition hover:bg-white/[.06]"><Bell size={15}/><span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-red-400"/></button>
+            <NotificationAlertCenter />
             <div className="hidden items-center gap-2 px-2 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/><span className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">Systems nominal</span></div>
           </div>
         </header>
