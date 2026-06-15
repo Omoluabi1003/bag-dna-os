@@ -8,6 +8,9 @@ export function compareVisualFingerprints(original: BagPhysicalProfile, current:
   const weightDelta = Math.abs(original.weightKg - current.weightKg);
   if (weightDelta > 1.5) mismatchReasons.push(`weight changed by ${weightDelta.toFixed(1)} kg`);
   const matchPercentage = Math.max(0, Math.round(100 - mismatchReasons.length * 8.5));
-  return { matchPercentage, mismatchReasons, status: matchPercentage >= 85 ? "match" as const : "mismatch" as const };
+  return { matchPercentage, confidenceScore: Math.max(0, Math.round(matchPercentage * .98)), mismatchReasons, status: matchPercentage >= 85 ? "match" as const : "mismatch" as const };
 }
 
+export function createVisualFingerprintProfile(bagDnaId: string, profile: BagPhysicalProfile, capturedAt = new Date().toISOString()) {
+  return { id: `VFP-${bagDnaId.replaceAll("-", "").slice(-8)}`, bagDnaId, profile, confidence: 98.7, capturedAt };
+}

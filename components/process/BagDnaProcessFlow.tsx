@@ -1,0 +1,7 @@
+import { Check, Fingerprint, Link2, ScanLine, ShieldAlert } from "lucide-react";
+
+const steps = ["Issue Digital Identity","Bind Passenger and Bag","Capture Physical DNA","Attach RFID/NFC/QR/Seal","Verify at Checkpoint","Transfer Custody","Detect Mismatch","Generate Evidence","Verify Passenger Claim","Close Custody"];
+const icons = [Fingerprint, Link2, ScanLine, Link2, ScanLine, Check, ShieldAlert, Fingerprint, ScanLine, Check];
+export function BagDnaProcessFlow() {
+  return <section className="glass p-5 md:p-7"><div className="mb-6"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-gold">Same-bag proof protocol</p><h2 className="mt-2 text-xl font-semibold">One identity, continuously verified</h2><p className="mt-2 max-w-3xl text-xs leading-5 text-slate-300">The chain is trusted only when credentials, physical DNA, route, seal, handler, and custody sequence continue to agree.</p></div><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">{steps.map((step,index)=>{const Icon=icons[index];return <div key={step} className="relative rounded-2xl border border-white/[.08] bg-white/[.035] p-4"><div className="flex items-center justify-between"><span className="grid h-8 w-8 place-items-center rounded-xl bg-cyan/10 text-cyan"><Icon size={15}/></span><span className="font-mono text-[9px] text-slate-400">{String(index+1).padStart(2,"0")}</span></div><p className="mt-4 text-[11px] font-semibold leading-4 text-white">{step}</p></div>})}</div></section>;
+}
