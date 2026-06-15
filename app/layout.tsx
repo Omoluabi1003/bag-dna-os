@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BAG-DNA OS | Aviation Baggage Intelligence",
+  title: "BAG-DNA OS | The Security & Intelligence Layer for Baggage",
   description:
-    "Digital baggage identity, chain-of-custody, geospatial operations and AI risk intelligence for modern aviation.",
+    "CrowdStrike-grade baggage security, Palantir-grade intelligence, ArcGIS-grade operations and Stripe-like identity infrastructure for modern aviation.",
   applicationName: "BAG-DNA OS",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icon.svg" },

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Check, ChevronRight, Fingerprint, Globe2, Network, Radar, ShieldAlert, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Fingerprint, Globe2, Layers3, Map, Network, Radar, ShieldAlert, Sparkles } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const capabilities = [
@@ -10,6 +10,41 @@ const capabilities = [
   { icon: Network, n: "02", title: "Chain-of-custody", text: "Every handoff, scan and security event captured as an immutable, operationally useful record." },
   { icon: Radar, n: "03", title: "AI risk intelligence", text: "Predictive anomaly detection surfaces custody breaks and route deviations before they become incidents." },
   { icon: Globe2, n: "04", title: "GIS digital twin", text: "Live geospatial context turns baggage operations into a clear, commandable airport-wide picture." },
+];
+
+const categoryPillars = [
+  {
+    icon: ShieldAlert,
+    category: "Baggage security",
+    analogy: "CrowdStrike",
+    statement: "Detect, investigate and stop baggage threats.",
+    text: "Continuous identity verification, anomaly detection and custody evidence protect every bag across every handoff.",
+    accent: "text-red-300",
+  },
+  {
+    icon: Radar,
+    category: "Baggage intelligence",
+    analogy: "Palantir",
+    statement: "Turn fragmented signals into operational decisions.",
+    text: "Unify airline, airport, security and sensor data into one explainable intelligence layer for action.",
+    accent: "text-gold",
+  },
+  {
+    icon: Map,
+    category: "Baggage operations",
+    analogy: "ArcGIS",
+    statement: "See the entire baggage network in space and time.",
+    text: "Command live movement, risk corridors, facilities and assets through an airport-scale geospatial digital twin.",
+    accent: "text-cyan",
+  },
+  {
+    icon: Layers3,
+    category: "Baggage identity",
+    analogy: "Stripe",
+    statement: "Embed trusted bag identity into any workflow.",
+    text: "Give aviation systems a programmable infrastructure layer for issuing, verifying and reconciling baggage identity.",
+    accent: "text-emerald-300",
+  },
 ];
 
 export default function LandingPage() {
@@ -54,7 +89,7 @@ export default function LandingPage() {
               Baggage has an<br/><span className="text-cyan">identity now.</span>
             </h1>
             <p className="mt-8 max-w-2xl text-base leading-8 text-mist md:text-lg">
-              BAG-DNA OS unifies digital identity, chain-of-custody, AI risk scoring and geospatial intelligence into one aviation-grade operating picture.
+              The security, intelligence, operations and identity infrastructure for every bag in motion—unified in one aviation-grade operating system.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link href="/dashboard" className="flex items-center gap-3 bg-gold px-6 py-4 text-[11px] font-bold uppercase tracking-[.16em] text-ink transition hover:bg-[#ecc35c]">Explore mission control <ArrowRight size={14}/></Link>
@@ -66,6 +101,52 @@ export default function LandingPage() {
               <div key={label} className="bg-ink/90 p-5"><p className="font-display text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[9px] uppercase tracking-[.15em] text-mist">{label}</p></div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="relative border-y border-white/[.07] bg-[#091b2a] py-28">
+        <div className="absolute inset-0 dot-field opacity-20" />
+        <div className="relative mx-auto max-w-7xl px-6">
+          <div className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:items-end">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[.24em] text-gold">A new control layer for aviation</p>
+              <h2 className="mt-5 max-w-xl font-display text-4xl font-semibold leading-tight text-ivory md:text-5xl">
+                Four critical systems.<br /><span className="text-cyan">One baggage OS.</span>
+              </h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-mist lg:justify-self-end">
+              BAG-DNA OS brings the category-defining capabilities aviation already trusts in cybersecurity, intelligence, geospatial operations and payments infrastructure to the baggage journey.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-px border border-white/[.08] bg-white/[.08] md:grid-cols-2">
+            {categoryPillars.map(({ icon: Icon, category, analogy, statement, text, accent }, index) => (
+              <motion.article
+                key={category}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: .25 }}
+                transition={{ delay: index * .08 }}
+                className="group bg-[#0b2134] p-7 md:p-9"
+              >
+                <div className="flex items-start justify-between gap-5">
+                  <div className={`grid h-11 w-11 place-items-center border border-current/20 bg-white/[.025] ${accent}`}>
+                    <Icon size={20} />
+                  </div>
+                  <span className="font-mono text-[9px] tracking-[.16em] text-mist/50">0{index + 1}</span>
+                </div>
+                <p className="mt-8 text-[9px] font-bold uppercase tracking-[.2em] text-mist">{category}</p>
+                <h3 className="mt-3 font-display text-2xl font-semibold text-ivory">
+                  <span className={accent}>{analogy}-grade</span> for aviation.
+                </h3>
+                <p className="mt-5 text-sm font-semibold text-ivory">{statement}</p>
+                <p className="mt-3 max-w-lg text-xs leading-6 text-mist">{text}</p>
+                <div className={`mt-7 h-px w-10 bg-current transition-all duration-300 group-hover:w-24 ${accent}`} />
+              </motion.article>
+            ))}
+          </div>
+          <p className="mt-8 text-center text-[10px] uppercase tracking-[.18em] text-mist">
+            One identity graph · One evidence chain · One operational truth
+          </p>
         </div>
       </section>
 
