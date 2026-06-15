@@ -1,4 +1,4 @@
-import { AlertTriangle, BriefcaseBusiness, Plane, ScanLine } from "lucide-react";
+import { AlertTriangle, BriefcaseBusiness, Plane, ScanLine, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { Badge, MetricCard, Progress, SectionHeading, StatusDot } from "@/components/ui";
 import { alerts, flights } from "@/lib/data";
@@ -29,11 +29,12 @@ export default function DashboardPage() {
         </div>
         <div className="flex gap-2"><Badge tone="emerald"><StatusDot/> Live</Badge><Badge>Last sync 4 sec ago</Badge></div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Active bags" value="12,847" change="+4.2%" detail="vs. daily avg" icon={BriefcaseBusiness}/>
-        <MetricCard label="Verified identities" value="12,803" change="99.66%" detail="passenger-bound records" icon={Plane}/>
-        <MetricCard label="Custody confidence" value="99.84%" change="+0.12%" detail="30-day trend" icon={ScanLine}/>
-        <MetricCard label="High-risk exceptions" value="17" change="−18.1%" detail="4 high priority" icon={AlertTriangle}/>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <MetricCard label="Bag Integrity Score" value="96.8" change="+1.4%" detail="network average" icon={BriefcaseBusiness}/>
+        <MetricCard label="Verification Pass Rate" value="99.66%" change="+0.08%" detail="all identity checks" icon={Plane}/>
+        <MetricCard label="Custody Continuity" value="99.84%" change="+0.12%" detail="gap-free journeys" icon={ScanLine}/>
+        <MetricCard label="Claim Closure Rate" value="98.9%" change="+0.6%" detail="verified release" icon={ShieldCheck}/>
+        <MetricCard label="Mismatch Detection" value="43" change="−18.1%" detail="17 stopped pre-load" icon={AlertTriangle}/>
       </div>
       <section className="glass mt-7 p-6 md:p-7">
         <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="emerald">Operational coverage</Badge>}/>

@@ -7,3 +7,6 @@ export function appendEvidence(previousHash:string, event:EvidenceInput) {
 export function verifyEvidenceChain(records:{previousHash:string; currentHash:string}[]) {
   return records.every((record,index)=>index === 0 || record.previousHash === records[index-1].currentHash);
 }
+export function generateInvestigationPackage<T extends { bagDnaId: string; ledger: unknown[]; custodyEvents: unknown[] }>(record: T) {
+  return { packageId: `EVID-${record.bagDnaId}-${Date.now()}`, generatedAt: new Date().toISOString(), bagDnaId: record.bagDnaId, custodyChain: record.custodyEvents, ledger: record.ledger, chainVerified: verifyEvidenceChain(record.ledger as {previousHash:string;currentHash:string}[]) };
+}
