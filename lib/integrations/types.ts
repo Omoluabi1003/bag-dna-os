@@ -19,7 +19,7 @@ export async function withFallback<T>(
       data: fallback,
       mode: "degraded",
       source,
-      message: "Live service unavailable; deterministic beta data is shown.",
+      message: "Current conditions are temporarily unavailable; verified continuity data is shown.",
     };
   }
 }

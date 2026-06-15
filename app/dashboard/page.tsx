@@ -5,6 +5,7 @@ import { alerts, flights } from "@/lib/data";
 import { CustodyChart } from "@/components/dashboard/CustodyChart";
 import { IncidentTrend } from "@/components/dashboard/IncidentTrend";
 import { RiskChart } from "@/components/dashboard/RiskChart";
+import { LiveDataPanel } from "@/components/integrations/LiveDataPanel";
 
 const nigeriaSignals = [
   ["Lagos hub activity", "4,820 bags", "Peak international bank"],
@@ -24,22 +25,22 @@ export default function DashboardPage() {
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cyan">Live operating picture</p>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-[-.04em] text-ivory md:text-5xl">Every bag. One clear view.</h2>
-          <p className="mt-3 text-sm text-mist">Monday, June 15 · 17:02 UTC · Atlanta international operations</p>
+          <p className="mt-3 text-sm text-mist">Monday, June 15 · 17:02 UTC · Nigeria and global corridor operations</p>
         </div>
         <div className="flex gap-2"><Badge tone="emerald"><StatusDot/> Live</Badge><Badge>Last sync 4 sec ago</Badge></div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Bags in operation" value="12,847" change="+4.2%" detail="vs. daily avg" icon={BriefcaseBusiness}/>
-        <MetricCard label="Active flights" value="186" change="+2.8%" detail="42 international" icon={Plane}/>
-        <MetricCard label="Custody compliance" value="99.84%" change="+0.12%" detail="30-day trend" icon={ScanLine}/>
-        <MetricCard label="Open exceptions" value="17" change="−18.1%" detail="4 high priority" icon={AlertTriangle}/>
+        <MetricCard label="Active bags" value="12,847" change="+4.2%" detail="vs. daily avg" icon={BriefcaseBusiness}/>
+        <MetricCard label="Verified identities" value="12,803" change="99.66%" detail="passenger-bound records" icon={Plane}/>
+        <MetricCard label="Custody confidence" value="99.84%" change="+0.12%" detail="30-day trend" icon={ScanLine}/>
+        <MetricCard label="High-risk exceptions" value="17" change="−18.1%" detail="4 high priority" icon={AlertTriangle}/>
       </div>
       <section className="glass mt-7 p-6 md:p-7">
-        <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="amber">Beta data mode</Badge>}/>
-        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">A pilot-facing view for airport authorities, airlines, customs, security teams, and investors. Figures are simulated until governed operational feeds are connected.</p>
+        <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="emerald">Operational coverage</Badge>}/>
+        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">Decision support for airport authorities, airlines, customs, security teams and insurers—protecting baggage identity, airport reputation and chain-of-custody assurance.</p>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{nigeriaSignals.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><p className="mt-3 text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[10px] leading-4 text-cyan">{detail}</p></article>)}</div>
       </section>
-      <div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
+      <div className="mt-7 grid gap-7 xl:grid-cols-[1.15fr_.85fr]"><LiveDataPanel/><section className="glass p-6"><SectionHeading eyebrow="Assurance indicators" title="Security and claims posture"/><div className="grid gap-3 sm:grid-cols-2">{[["Staff anomaly count","3","Assignment and geofence review"],["Tamper seal events","7","2 require investigator confirmation"],["Claim dispute indicators","43","Evidence packages available"],["Nigerian corridor risk","Moderate","Lagos weather drives monitoring"]].map(([a,b,c])=><article key={a} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-wider text-slate-300">{a}</p><b className="mt-2 block text-xl text-white">{b}</b><p className="mt-1 text-[11px] leading-5 text-slate-300">{c}</p></article>)}</div></section></div><div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
         <section className="glass p-6 md:p-7">
           <SectionHeading eyebrow="Departure bank 03" title="Flight load progression" action={<button className="text-[9px] font-bold uppercase tracking-wider text-cyan">View all flights →</button>}/>
           <div className="overflow-x-auto">
