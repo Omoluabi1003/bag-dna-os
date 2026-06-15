@@ -38,10 +38,10 @@ export const metadata: Metadata = {
     description: "The Digital Identity Layer for Every Checked Bag.",
     images: [
       {
-        url: `${basePath}/bag-dna-logo.png`,
-        width: 1024,
-        height: 1024,
-        alt: "BAG-DNA OS logo",
+        url: `${basePath}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "BAG-DNA OS — The digital identity layer for every checked bag",
       },
     ],
   },
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BAG-DNA OS™",
     description: "The Digital Identity Layer for Every Checked Bag.",
-    images: [`${basePath}/bag-dna-logo.png`],
+    images: [`${basePath}/opengraph-image`],
   },
   robots: { index: true, follow: true },
 };
