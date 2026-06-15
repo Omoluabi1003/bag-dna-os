@@ -225,7 +225,7 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      <footer className="border-t border-black/[.06] bg-white px-5 py-10 md:px-8"><div className="landing-logo mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-center"><Logo/><p className="text-xs text-slate-500">© 2026 ETL GIS Consulting LLC. Aviation intelligence, engineered.</p></div></footer>
+      <footer className="border-t border-black/[.06] bg-white px-5 py-10 md:px-8"><div className="landing-logo mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 lg:flex-row lg:items-center"><Logo/><nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-3 text-xs font-medium text-slate-600"><Link href="/beta">Beta readiness</Link><Link href="/integrations">API roadmap</Link><Link href="/investors">Investors</Link><Link href="/docs">Technical docs</Link><Link href="/about">ETL GIS</Link></nav><p className="text-xs text-slate-500">© 2026 ETL GIS Consulting LLC.</p></div></footer>
     </main>
   );
 }
