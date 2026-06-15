@@ -24,11 +24,6 @@ body {
 
 .text-balance { text-wrap: balance; }
 
-.landing-logo a > span:first-child {
-  background: #0b2134;
-  border-color: rgba(11, 33, 52, .12);
-  color: white;
-}
 .landing-logo a > span:last-child span:first-child { color: #0b2134; }
 .landing-logo a > span:last-child span:last-child { color: #64748b; }
 
