@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bagdnaos.com";
+const siteUrl = "https://bag-dna-os.vercel.app";
+const socialImageUrl = `${siteUrl}/social-share.svg`;
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
@@ -38,10 +39,10 @@ export const metadata: Metadata = {
     description: "The Digital Identity Layer for Every Checked Bag.",
     images: [
       {
-        url: `${basePath}/opengraph-image`,
+        url: socialImageUrl,
         width: 1200,
         height: 630,
-        alt: "BAG-DNA OS — The digital identity layer for every checked bag",
+        alt: "BAG-DNA OS social preview",
       },
     ],
   },
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "BAG-DNA OS™",
     description: "The Digital Identity Layer for Every Checked Bag.",
-    images: [`${basePath}/opengraph-image`],
+    images: [socialImageUrl],
   },
   robots: { index: true, follow: true },
 };

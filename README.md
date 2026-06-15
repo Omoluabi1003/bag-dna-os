@@ -72,6 +72,12 @@ npm run typecheck
 npm run build
 ```
 
+### Refreshing cached social previews
+
+Social platforms cache Open Graph and Twitter link previews, so metadata or
+image changes may not appear immediately. After deployment, test a cache-busted
+URL such as `https://bag-dna-os.vercel.app/?v=2` to request a refreshed preview.
+
 ## Deployment targets
 
 ### Vercel (primary and full-feature target)
