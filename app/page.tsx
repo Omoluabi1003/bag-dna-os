@@ -34,10 +34,10 @@ const capabilities = [
 ];
 
 const journey = [
-  ["01", "Identity minted", "Passenger, itinerary, tag, and physical attributes are reconciled."],
-  ["02", "Custody verified", "Handlers and security systems sign each operational handoff."],
-  ["03", "Movement understood", "GIS intelligence validates location, timing, and route behavior."],
-  ["04", "Claim secured", "Passenger and bag identity close the journey with evidence."],
+  ["01", "Issue identity", "At check-in, create a BAG-DNA identity for the passenger, flight, and physical bag."],
+  ["02", "Bind every layer", "Link the tag, RFID, NFC, rotating QR, tamper seal, weight, and visual fingerprint."],
+  ["03", "Verify every scan", "Reconcile credentials, route, custody stage, staff assignment, seal, weight, and appearance."],
+  ["04", "Detect and preserve", "Stop identity mismatches, record evidence, and release the bag only after trusted claim."],
 ];
 
 function ProductPreview() {
@@ -147,11 +147,11 @@ export default function LandingPage() {
               The digital identity layer for every checked bag.
             </h2>
             <p className="mx-auto mt-8 max-w-3xl text-balance text-base leading-7 text-slate-600 md:text-xl md:leading-8">
-              AI chain-of-custody, GIS digital twins, secure baggage tags, and passenger visibility for the next generation of aviation security.
+              Issue, bind, verify, track, and protect a persistent digital identity for every checked bag—from check-in to trusted passenger claim.
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/dashboard" className="premium-button justify-center px-6 py-3.5 text-sm">Explore Command Center <ArrowRight size={16}/></Link>
-              <Link href="/pilot" className="secondary-button justify-center px-6 py-3.5 text-sm">View Nigeria Pilot Strategy <ChevronRight size={16}/></Link>
+              <Link href="/tagging" className="premium-button justify-center px-6 py-3.5 text-sm">Open Tagging Station <ArrowRight size={16}/></Link>
+              <Link href="/scanner" className="secondary-button justify-center px-6 py-3.5 text-sm">Run Checkpoint Scan <ChevronRight size={16}/></Link>
             </div>
           </motion.div>
           <div className="mt-20 md:mt-28"><ProductPreview/></div>
@@ -163,7 +163,7 @@ export default function LandingPage() {
           <motion.div {...reveal} className="mx-auto max-w-4xl text-center">
             <p className="section-kicker">One trusted identity graph</p>
             <h2 className="section-title">Know the bag. Understand the journey.</h2>
-            <p className="section-copy mx-auto">BAG-DNA OS unifies identity, custody, risk, and location into a single operational truth—without replacing the systems airports already depend on.</p>
+            <p className="section-copy mx-auto">BAG-DNA OS is a Digital Baggage Identity issuance, verification, tracking, and chain-of-custody operating system—not merely an aviation dashboard.</p>
           </motion.div>
           <div className="mt-16 grid gap-5 md:grid-cols-2">
             {capabilities.map(({icon: Icon, title, text}, index) => (

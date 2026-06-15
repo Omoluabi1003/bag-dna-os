@@ -23,6 +23,17 @@ Conventional paper baggage tags can be photographed, cloned, stolen, diverted, o
 
 BAG-DNA OS assigns each checked bag a persistent digital identity linked to its journey and physical attributes. Multi-sensor custody events continuously reconcile RFID/NFC, computer vision, weight, dimensions, tamper seal, location, route, and authorized staff interactions.
 
+## The BAG-DNA operating protocol
+
+1. Issue a Digital Baggage Identity at check-in.
+2. Bind the passenger reference, flight, physical bag, secure tag, RFID, NFC, rotating QR, tamper seal, and visual fingerprint.
+3. Verify every checkpoint scan against expected route, weight, appearance, seal, custody stage, and authorized handler.
+4. Detect identity mismatch, credential cloning, route inconsistency, unauthorized access, or custody gaps.
+5. Preserve each issuance, validation, transfer, alert, and claim as a hash-linked evidence event.
+6. Give passengers clear visibility into the last verified scan, seal integrity, visual confidence, and claim readiness.
+
+The interactive protocol is demonstrated at `/tagging`, `/fingerprint`, `/scanner`, `/mismatch-lab`, `/custody`, `/tamper-seals`, `/passenger`, and `/ledger`.
+
 ## Core modules
 
 - Digital Baggage Identity Registry and individual intelligence profiles

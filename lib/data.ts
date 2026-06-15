@@ -54,6 +54,10 @@ export const riskFactors = [
 
 export const navItems = [
   { label: "Operations", href: "/dashboard" },
+  { label: "Tagging Station", href: "/tagging" },
+  { label: "Checkpoint Scanner", href: "/scanner" },
+  { label: "AI Fingerprint", href: "/fingerprint" },
+  { label: "Mismatch Lab", href: "/mismatch-lab" },
   { label: "Nigeria Intelligence", href: "/intelligence" },
   { label: "Identity Registry", href: "/registry" },
   { label: "Chain of Custody", href: "/custody" },
@@ -61,6 +65,8 @@ export const navItems = [
   { label: "Digital Twin", href: "/digital-twin" },
   { label: "Passenger Portal", href: "/passenger" },
   { label: "Evidence Ledger", href: "/ledger" },
+  { label: "Tamper Seals", href: "/tamper-seals" },
+  { label: "Staff Monitoring", href: "/staff-monitoring" },
   { label: "Security Modules", href: "/secure-tags" },
   { label: "Pilot Strategy", href: "/pilot" },
   { label: "Beta Readiness", href: "/beta" },
