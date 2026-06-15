@@ -4,6 +4,17 @@
 
 BAG-DNA OS is the digital identity, AI chain-of-custody, GIS digital twin, and aviation security intelligence operating system for checked baggage. It is developed by **ETL GIS Consulting LLC** for airports, airlines, aviation authorities, customs and border agencies, insurers, security teams, and passengers.
 
+## Category position
+
+BAG-DNA OS is designed as the aviation equivalent of four category-defining platforms:
+
+- **CrowdStrike for baggage security:** continuous threat detection, anomaly investigation, identity verification, and defensible custody evidence.
+- **Palantir for baggage intelligence:** a unified decision layer across airline, airport, agency, staff, route, and sensor data.
+- **ArcGIS for baggage operations:** a live geospatial digital twin for commanding baggage movement, facilities, risk corridors, and operational assets.
+- **Stripe-like infrastructure for baggage identity:** a programmable trust layer for issuing, verifying, and reconciling persistent bag identities across aviation workflows.
+
+Together, these capabilities create one identity graph, one evidence chain, and one operational truth for every bag in motion.
+
 ## The problem
 
 Conventional paper baggage tags can be photographed, cloned, stolen, diverted, or attached to another bag. Fragmented airport systems make these substitutions difficult to detect and expose aviation stakeholders to theft, narcotics trafficking, insider manipulation, passenger misidentification, legal claims, and reputational harm.
