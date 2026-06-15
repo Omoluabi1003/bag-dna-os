@@ -15,13 +15,13 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
 
   return (
     <div className="min-h-screen bg-ink">
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-white/[.07] bg-[#081927] p-5 transition-transform lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-[272px] border-r border-white/[.08] bg-[#081927]/90 p-5 shadow-2xl backdrop-blur-2xl transition-transform lg:translate-x-0 lg:shadow-none ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between">
           <Logo />
           <button className="text-mist lg:hidden" onClick={() => setOpen(false)} aria-label="Close navigation"><X size={20}/></button>
         </div>
-        <div className="mt-9 flex items-center gap-3 border border-white/[.08] bg-white/[.025] p-3">
-          <div className="grid h-8 w-8 place-items-center bg-gold/10 text-gold"><ShieldCheck size={16}/></div>
+        <div className="mt-9 flex items-center gap-3 rounded-2xl border border-white/[.08] bg-white/[.04] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gold/10 text-gold"><ShieldCheck size={16}/></div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[11px] font-bold text-ivory">ATL Command</p>
             <p className="text-[9px] text-mist">Enterprise environment</p>
@@ -32,8 +32,8 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
         <nav className="space-y-1">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 border-l-2 px-3 py-2.5 text-[12px] transition ${pathname === item.href ? "border-gold bg-gold/[.07] text-ivory" : "border-transparent text-mist hover:bg-white/[.03] hover:text-ivory"}`}>
-              <span className={`h-1.5 w-1.5 ${pathname === item.href ? "bg-gold" : "bg-slate-600"}`}/>
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[12px] font-medium transition ${pathname === item.href ? "bg-white/[.08] text-ivory shadow-[inset_0_1px_0_rgba(255,255,255,.05)]" : "text-mist hover:bg-white/[.04] hover:text-ivory"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${pathname === item.href ? "bg-cyan shadow-[0_0_8px_#6ed8e0]" : "bg-slate-600"}`}/>
               {item.label}
             </Link>
           ))}
@@ -46,22 +46,22 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
           </div>
         </div>
       </aside>
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-40 flex h-[70px] items-center justify-between border-b border-white/[.07] bg-ink/90 px-5 backdrop-blur-xl md:px-8">
+      <div className="lg:pl-[272px]">
+        <header className="sticky top-0 z-40 flex h-[76px] items-center justify-between border-b border-white/[.07] bg-ink/75 px-5 backdrop-blur-2xl md:px-10">
           <div className="flex items-center gap-3">
             <button className="text-mist lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={20}/></button>
             <div>
-              <p className="text-[8px] font-bold uppercase tracking-[.18em] text-gold">{eyebrow}</p>
-              <h1 className="mt-1 font-display text-base font-semibold text-ivory">{title}</h1>
+              <p className="text-[9px] font-semibold uppercase tracking-[.14em] text-gold">{eyebrow}</p>
+              <h1 className="mt-1 font-display text-[17px] font-semibold tracking-[-.01em] text-ivory">{title}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="hidden h-9 items-center gap-2 border border-white/[.08] bg-white/[.025] px-3 text-[10px] text-mist md:flex"><Search size={14}/> Search assets <kbd className="ml-3 text-[9px]">⌘ K</kbd></button>
-            <button className="relative grid h-9 w-9 place-items-center border border-white/[.08] text-mist"><Bell size={15}/><span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-400"/></button>
+            <button className="hidden h-10 items-center gap-2 rounded-xl border border-white/[.08] bg-white/[.04] px-3.5 text-[11px] text-mist transition hover:bg-white/[.07] md:flex"><Search size={14}/> Search assets <kbd className="ml-3 text-[9px]">⌘ K</kbd></button>
+            <button aria-label="Notifications" className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/[.08] bg-white/[.025] text-mist transition hover:bg-white/[.06]"><Bell size={15}/><span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-red-400"/></button>
             <div className="hidden items-center gap-2 px-2 sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/><span className="text-[9px] font-bold uppercase tracking-wider text-emerald-300">Systems nominal</span></div>
           </div>
         </header>
-        <main className="grid-field min-h-[calc(100vh-70px)] p-5 md:p-8">{children}</main>
+        <main className="min-h-[calc(100vh-76px)] p-5 md:p-10">{children}</main>
       </div>
     </div>
   );
