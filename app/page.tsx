@@ -58,6 +58,30 @@ const backgroundLinks = [
   },
 ];
 
+function LinkedSectionBackground({
+  label,
+  href,
+  image,
+  className = "",
+}: {
+  label: string;
+  href: string;
+  image: string;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      className={`linked-section-background ${className}`}
+      style={{ backgroundImage: `url(${image})` }}
+      aria-label={`${label} image source`}
+      title={`${label} image source`}
+    >
+      <span>{label}</span>
+    </a>
+  );
+}
+
 function ProductPreview() {
   return (
     <motion.div
@@ -153,20 +177,7 @@ export default function LandingPage() {
       </nav>
 
       <section className="hero-light relative px-5 pb-24 pt-36 md:px-8 md:pb-36 md:pt-48">
-        <div className="linked-story-background">
-          {backgroundLinks.map(({ label, href, image }, index) => (
-            <a
-              key={label}
-              href={href}
-              className={`linked-story-tile linked-story-tile-${index + 1}`}
-              style={{ backgroundImage: `url(${image})` }}
-              aria-label={`${label} image source`}
-              title={label}
-            >
-              <span>{label}</span>
-            </a>
-          ))}
-        </div>
+        <LinkedSectionBackground {...backgroundLinks[0]} className="linked-hero-background" />
         <div className="relative z-10 mx-auto max-w-7xl">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75 }} className="mx-auto max-w-5xl text-center">
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-black/[.08] bg-white/70 px-4 py-2 text-[11px] font-semibold text-slate-600 shadow-sm backdrop-blur">
@@ -190,8 +201,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="platform" className="bg-white px-5 py-28 md:px-8 md:py-40">
-        <div className="mx-auto max-w-7xl">
+      <section id="platform" className="section-with-linked-background bg-white px-5 py-28 md:px-8 md:py-40">
+        <LinkedSectionBackground {...backgroundLinks[1]} className="linked-platform-background" />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <motion.div {...reveal} className="mx-auto max-w-4xl text-center">
             <p className="section-kicker">One trusted identity graph</p>
             <h2 className="section-title">Know the bag. Understand the journey.</h2>
@@ -211,8 +223,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="workflow" className="command-section px-5 py-28 text-white md:px-8 md:py-40">
-        <div className="mx-auto max-w-7xl">
+      <section id="workflow" className="command-section section-with-linked-background px-5 py-28 text-white md:px-8 md:py-40">
+        <LinkedSectionBackground {...backgroundLinks[2]} className="linked-workflow-background" />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <motion.div {...reveal} className="grid gap-8 lg:grid-cols-[1fr_.8fr] lg:items-end">
             <div><p className="section-kicker text-cyan">Identity-first custody</p><h2 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.05] tracking-[-.045em] sm:text-5xl md:text-7xl">A defensible journey, from bag drop to claim.</h2></div>
             <p className="max-w-xl text-base leading-7 text-slate-300 lg:justify-self-end">Every operational event strengthens the bag’s identity. Every exception becomes visible, explainable, and actionable.</p>
