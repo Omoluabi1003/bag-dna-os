@@ -40,6 +40,24 @@ const journey = [
   ["04", "Detect and preserve", "Stop identity mismatches, record evidence, and release the bag only after trusted claim."],
 ];
 
+const backgroundLinks = [
+  {
+    label: "Tagged bag identity",
+    href: "https://unsplash.com/photos/green-suitcase-with-travel-stickers-in-airport-terminal-TQ1lLBpy6X4",
+    image: "https://images.unsplash.com/photo-1757865579170-8d64d9aab467?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    label: "Baggage claim custody",
+    href: "https://unsplash.com/photos/luggage-on-a-conveyor-belt-at-an-airport-baggage-claim-S0u5ugYRNFo",
+    image: "https://images.unsplash.com/photo-1762965119363-af950b523dca?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    label: "Airport operations corridor",
+    href: "https://unsplash.com/photos/a-baggage-claim-area-at-an-airport-with-a-conveyor-belt-z4BDX1qlGtI",
+    image: "https://images.unsplash.com/photo-1728327208432-782ad594ef7e?auto=format&fit=crop&w=1200&q=80",
+  },
+];
+
 function ProductPreview() {
   return (
     <motion.div
@@ -135,7 +153,21 @@ export default function LandingPage() {
       </nav>
 
       <section className="hero-light relative px-5 pb-24 pt-36 md:px-8 md:pb-36 md:pt-48">
-        <div className="mx-auto max-w-7xl">
+        <div className="linked-story-background">
+          {backgroundLinks.map(({ label, href, image }, index) => (
+            <a
+              key={label}
+              href={href}
+              className={`linked-story-tile linked-story-tile-${index + 1}`}
+              style={{ backgroundImage: `url(${image})` }}
+              aria-label={`${label} image source`}
+              title={label}
+            >
+              <span>{label}</span>
+            </a>
+          ))}
+        </div>
+        <div className="relative z-10 mx-auto max-w-7xl">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75 }} className="mx-auto max-w-5xl text-center">
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-black/[.08] bg-white/70 px-4 py-2 text-[11px] font-semibold text-slate-600 shadow-sm backdrop-blur">
               <Sparkles size={13} className="text-[#9a7422]"/> Aviation identity infrastructure
