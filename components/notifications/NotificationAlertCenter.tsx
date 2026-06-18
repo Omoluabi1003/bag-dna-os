@@ -132,6 +132,12 @@ export function NotificationAlertCenter({
     setIsAlertCenterOpen(false);
   }
 
+  function handleCloseControl(event: React.MouseEvent<HTMLButtonElement> | React.PointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeAlertCenter();
+  }
+
   return (
     <>
       <button
@@ -187,8 +193,8 @@ export function NotificationAlertCenter({
               <button
                 type="button"
                 aria-label="Close checkpoint intelligence"
-                onClick={closeAlertCenter}
-                onPointerDown={closeAlertCenter}
+                onClick={handleCloseControl}
+                onPointerDown={handleCloseControl}
                 className="relative z-10 grid h-12 w-12 shrink-0 touch-manipulation place-items-center rounded-xl border border-white/[.08] bg-white/[.04] text-mist transition hover:bg-white/[.08] hover:text-ivory active:scale-95 md:h-10 md:w-10"
               >
                 <X size={17} />
