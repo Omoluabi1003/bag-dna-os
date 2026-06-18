@@ -30,10 +30,30 @@ const reveal = {
 };
 
 const capabilities = [
-  { icon: Fingerprint, title: "Persistent bag identity", text: "Bind every bag to its passenger, journey, visual attributes, and secure tag." },
-  { icon: Network, title: "Verified chain of custody", text: "Turn every handoff into a timestamped, defensible evidence event." },
-  { icon: Radar, title: "AI risk intelligence", text: "Surface anomalies, route deviations, and custody breaks before escalation." },
-  { icon: Map, title: "GIS operational twin", text: "See baggage movement, facilities, and risk in one geospatial command layer." },
+  {
+    icon: Fingerprint,
+    title: "Persistent bag identity",
+    text: "Bind every bag to its passenger, journey, visual attributes, and secure tag.",
+    href: "/registry",
+  },
+  {
+    icon: Network,
+    title: "Verified chain of custody",
+    text: "Turn every handoff into a timestamped, defensible evidence event.",
+    href: "/custody",
+  },
+  {
+    icon: Radar,
+    title: "AI risk intelligence",
+    text: "Surface anomalies, route deviations, and custody breaks before escalation.",
+    href: "/risk",
+  },
+  {
+    icon: Map,
+    title: "GIS operational twin",
+    text: "See baggage movement, facilities, and risk in one geospatial command layer.",
+    href: "/digital-twin",
+  },
 ];
 
 const journey = [
@@ -246,13 +266,19 @@ export default function LandingPage() {
             <p className="section-copy mx-auto">BAG-DNA OS is a Digital Baggage Identity issuance, verification, tracking, and chain-of-custody operating system—not merely an aviation dashboard.</p>
           </motion.div>
           <div className="mt-16 grid gap-5 md:grid-cols-2">
-            {capabilities.map(({icon: Icon, title, text}, index) => (
+            {capabilities.map(({icon: Icon, title, text, href}, index) => (
               <motion.article {...reveal} transition={{ duration: .6, delay: index * .06 }} key={title} className="feature-card group">
                 <span className="feature-icon"><Icon size={22}/></span>
                 <p className="mt-12 text-xs font-semibold text-slate-500">0{index + 1}</p>
                 <h3 className="mt-3 text-2xl font-semibold tracking-[-.03em] md:text-3xl">{title}</h3>
                 <p className="mt-4 max-w-lg text-base leading-7 text-slate-600">{text}</p>
-                <div className="mt-10 flex items-center gap-2 text-sm font-semibold text-[#805d14] opacity-70 transition group-hover:opacity-100">Explore capability <ArrowRight size={15}/></div>
+                <Link
+                  href={href}
+                  className="mt-10 inline-flex items-center gap-2 text-sm font-semibold text-[#805d14] opacity-70 transition hover:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#805d14] group-hover:opacity-100"
+                  aria-label={`Explore ${title} capability`}
+                >
+                  Explore capability <ArrowRight size={15} aria-hidden="true"/>
+                </Link>
               </motion.article>
             ))}
           </div>
