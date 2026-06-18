@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@react-three/drei": "^9.115.0",
-    "@react-three/fiber": "^8.17.0",
-    "@react-three/postprocessing": "^2.16.0",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@react-three/postprocessing": "^3.0.4",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.468.0",
     "next": "^15.5.19",
@@ -21,7 +21,7 @@
     "react-dom": "^19.0.0",
     "recharts": "^2.15.4",
     "three": "^0.169.0",
-    "three-stdlib": "^2.35.0"
+    "three-stdlib": "^2.36.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
