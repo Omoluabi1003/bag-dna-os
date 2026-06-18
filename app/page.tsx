@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -18,6 +19,8 @@ import {
 } from "lucide-react";
 import { type CSSProperties, useState } from "react";
 import { Logo } from "@/components/logo";
+
+const ThreeScene = dynamic(() => import("@/components/ThreeScene"), { ssr: false });
 
 const reveal = {
   initial: { opacity: 0, y: 22 },
@@ -191,7 +194,11 @@ export default function LandingPage() {
         {menuOpen && <div className="border-t border-black/[.06] bg-white px-5 py-5 md:hidden"><div className="flex flex-col gap-4 text-sm font-medium"><a href="#platform" onClick={() => setMenuOpen(false)}>Platform</a><a href="#workflow" onClick={() => setMenuOpen(false)}>How it works</a><Link href="/pilot">Nigeria pilot</Link><Link href="/dashboard" className="premium-button justify-center">Explore Command Center</Link></div></div>}
       </nav>
 
-      <section className="hero-light relative px-5 pb-24 pt-36 md:px-8 md:pb-36 md:pt-48">
+      <section className="hero-light relative overflow-hidden bg-[#06101d] px-5 pb-24 pt-36 text-white md:px-8 md:pb-36 md:pt-48">
+        <div className="absolute inset-0 z-0 opacity-80 [mask-image:linear-gradient(to_bottom,black_0%,black_58%,transparent_100%)]">
+          <ThreeScene />
+        </div>
+        <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_8%,rgba(110,216,224,.22),transparent_36%),linear-gradient(180deg,rgba(6,16,29,.34),rgba(245,245,247,.92)_88%)]" aria-hidden="true" />
         <LinkedSectionBackground
           {...backgroundLinks[0]}
           className="linked-hero-background"
@@ -202,16 +209,16 @@ export default function LandingPage() {
         />
         <div className="relative z-10 mx-auto max-w-7xl">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.75 }} className="mx-auto max-w-5xl text-center">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-black/[.08] bg-white/70 px-4 py-2 text-[11px] font-semibold text-slate-600 shadow-sm backdrop-blur">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan/20 bg-[#071522]/70 px-4 py-2 text-[11px] font-semibold text-cyan shadow-[0_0_30px_rgba(110,216,224,.18)] backdrop-blur">
               <Sparkles size={13} className="text-[#9a7422]"/> Aviation identity infrastructure
             </div>
-            <h1 className="text-balance text-6xl font-semibold leading-[.94] tracking-[-.065em] text-[#090a0c] sm:text-7xl md:text-[104px]">
+            <h1 className="text-balance text-6xl font-semibold leading-[.94] tracking-[-.065em] text-white drop-shadow-[0_0_34px_rgba(110,216,224,.28)] sm:text-7xl md:text-[104px]">
               BAG-DNA OS<span className="align-top text-[.28em] tracking-normal">™</span>
             </h1>
-            <h2 className="mx-auto mt-7 max-w-4xl text-balance text-3xl font-semibold leading-[1.08] tracking-[-.045em] text-slate-700 sm:text-4xl md:text-6xl">
+            <h2 className="mx-auto mt-7 max-w-4xl text-balance text-3xl font-semibold leading-[1.08] tracking-[-.045em] text-slate-100 sm:text-4xl md:text-6xl">
               The digital identity layer for every checked bag.
             </h2>
-            <p className="mx-auto mt-8 max-w-3xl text-balance text-base leading-7 text-slate-600 md:text-xl md:leading-8">
+            <p className="mx-auto mt-8 max-w-3xl text-balance text-base leading-7 text-slate-300 md:text-xl md:leading-8">
               Issue, bind, verify, track, and protect a persistent digital identity for every checked bag—from check-in to trusted passenger claim.
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
