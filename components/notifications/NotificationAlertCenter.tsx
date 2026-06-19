@@ -104,8 +104,7 @@ export function NotificationAlertCenter({
     closeModal("checkpoint-alert-center");
   }
 
-  function handleCloseControl(event: React.MouseEvent<HTMLButtonElement> | React.PointerEvent<HTMLButtonElement>) {
-    event.preventDefault();
+  function handleCloseControl(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation();
     closeAlertCenter();
   }
@@ -135,7 +134,7 @@ export function NotificationAlertCenter({
 
       <div
         aria-hidden={!isAlertCenterOpen}
-        className={`fixed inset-0 z-[70] bg-black/35 backdrop-blur-[2px] transition-opacity duration-[180ms] ${
+        className={`fixed inset-0 z-[70] bg-black/25 backdrop-blur-[1px] transition-opacity duration-[180ms] ${
           isAlertCenterOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={closeAlertCenter}
@@ -147,7 +146,7 @@ export function NotificationAlertCenter({
         aria-hidden={!isAlertCenterOpen}
         inert={!isAlertCenterOpen ? true : undefined}
         aria-labelledby="checkpoint-intelligence-title"
-        className={`fixed inset-x-0 bottom-0 z-[80] max-h-[86vh] overflow-hidden overscroll-contain rounded-t-[28px] border border-white/[.10] bg-[#081927]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-[180ms] md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-l-[28px] md:rounded-r-none ${
+        className={`fixed inset-x-0 bottom-0 z-[90] max-h-[86vh] overflow-hidden overscroll-contain rounded-t-[28px] border border-white/[.10] bg-[#081927]/98 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-[180ms] md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-l-[28px] md:rounded-r-none ${
           isAlertCenterOpen ? "pointer-events-auto translate-y-0 md:translate-x-0" : "pointer-events-none translate-y-full md:translate-x-full md:translate-y-0"
         }`}
         onClick={(event) => event.stopPropagation()}
@@ -169,8 +168,7 @@ export function NotificationAlertCenter({
                 type="button"
                 aria-label="Close checkpoint intelligence"
                 onClick={handleCloseControl}
-                onPointerDown={handleCloseControl}
-                className="relative z-10 grid h-12 w-12 shrink-0 touch-manipulation place-items-center rounded-xl border border-white/[.08] bg-white/[.04] text-mist transition hover:bg-white/[.08] hover:text-ivory active:scale-95 md:h-10 md:w-10"
+                className="relative z-[100] grid h-12 w-12 shrink-0 touch-manipulation place-items-center rounded-xl border border-white/[.12] bg-white/[.08] text-mist transition hover:bg-white/[.12] hover:text-ivory active:scale-95 md:h-10 md:w-10"
               >
                 <X size={17} />
               </button>
