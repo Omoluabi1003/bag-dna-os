@@ -178,3 +178,18 @@ BAG-DNA OS uses public datasets as trust infrastructure, not as a decorative ope
 
 ### Why it strengthens baggage identity trust
 Public intelligence adds explainable context to BAG-DNA IDs: airport readiness, route pressure, weather disruption, health-security controls, aircraft movement and simulated threat-pattern similarity. This makes risk scores and evidence narratives easier for airport teams, airlines and passengers to trust while preserving graceful degraded operation.
+
+## BAG-DNA Intelligence Layer
+
+BAG-DNA OS now exposes the intelligence used to prove that the bag checked in is the same bag delivered. The `/intelligence-center` route combines reusable TypeScript engines, local fallback seed data, and SVG/CSS visualizations so operators can see inputs, relationships, scoring logic, explanations, recommended actions, and evidence confidence.
+
+- **Trust Graph** links passenger identity, BAG-DNA ID, RFID, NFC, QR, visual DNA, seal, staff zone, airport, checkpoint, flight movement, weather pressure, custody events, and the evidence ledger.
+- **Threat Graph** compares current baggage events against known signatures such as stolen tag reuse, RFID/QR mismatch, unauthorized seal break, custody blackout gaps, repeated handler anomalies, and claim dispute anomalies.
+- **Knowledge Graph** explains ecosystem relationships including passenger ownership, tag binding, scan-to-custody creation, evidence ledger creation, alert impact, and claim closure.
+- **Event Graph** turns check-in through claim closure into a temporal proof story with score impact, event confidence, continuity status, delayed events, gaps, and event hashes.
+- **Memory Graph** surfaces learned recurring patterns such as checkpoint custody gaps, seal failures, staff anomalies, corridor risks, and repeated claim disputes.
+- **Collective Intelligence Network** previews anonymized airport-to-airport threat sharing, corridor alerts, stolen-tag pattern detection, and control broadcasts without exposing passenger identities.
+- **Airport Reputation Engine** scores baggage identity reliability for Nigerian and international airports using custody continuity, scan completion, mismatch rate, seal incidents, staff anomalies, claims pressure, operational pressure, and readiness indicators.
+- **Insurance Intelligence Engine** translates integrity, custody confidence, seal status, route risk, airport trust, dispute indicators, mismatch history, and baggage value band into claim risk, exposure, fraud probability, evidence strength, and claim action.
+- **Integrity Score** calculates a visible 0–100 Bag Integrity Score from identity match, RFID, NFC, QR, visual DNA, weight, seal integrity, custody continuity, route consistency, staff compliance, and claim verification.
+- **Identity Confidence Engine** calculates how likely it is that the current bag is the original checked-in bag using original tag, current scan, RFID, NFC, QR, visual fingerprint, weight, dimensions, seal, route, and custody continuity.

@@ -1,0 +1,1 @@
+export const memoryPatternsSeed = ["Lagos transfer checkpoint recurring custody gap pattern","Repeated seal failures on wet apron transfers","Handler zone anomaly repeats on late bank handoffs","Lagos to Toronto claim disputes cluster after delayed arrival scans","Kano to Jeddah corridor requires extra seal validation"];
