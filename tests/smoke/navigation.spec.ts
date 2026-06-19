@@ -34,4 +34,17 @@ test.describe("BAG-DNA OS navigation smoke", () => {
     await page.keyboard.press("Escape");
     await expect(page.getByText("Checkpoint Intelligence")).not.toBeVisible();
   });
+
+  test("notification drawer can close from the backdrop and route to full pages", async ({ page }) => {
+    await page.goto("/dashboard");
+    await page.getByRole("button", { name: /checkpoint alerts/i }).click();
+    await expect(page.getByRole("dialog", { name: "Checkpoint Intelligence" })).toBeVisible();
+    await page.getByRole("button", { name: "Close checkpoint intelligence backdrop" }).click();
+    await expect(page.getByText("Checkpoint Intelligence")).not.toBeVisible();
+
+    await page.getByRole("button", { name: /checkpoint alerts/i }).click();
+    await page.getByRole("link", { name: "Verification Center" }).click();
+    await expect(page).toHaveURL(/\/verification-center$/);
+    await expect(page.getByRole("heading", { name: "Verification Center" })).toBeVisible();
+  });
 });
