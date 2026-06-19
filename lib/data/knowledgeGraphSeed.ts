@@ -1,0 +1,2 @@
+export const knowledgeGraphNodes=["Passenger","Bag","BAG-DNA ID","RFID","NFC","QR token","Tamper seal","Flight","Airport","Checkpoint","Staff handler","Custody event","Alert","Evidence ledger"];
+export const knowledgeGraphEdges=[["Passenger","Bag"],["Bag","BAG-DNA ID"],["BAG-DNA ID","RFID"],["BAG-DNA ID","NFC"],["BAG-DNA ID","QR token"],["Bag","Tamper seal"],["Bag","Flight"],["Flight","Airport"],["Airport","Checkpoint"],["Checkpoint","Staff handler"],["Staff handler","Custody event"],["Custody event","Evidence ledger"],["Alert","Evidence ledger"],["Tamper seal","Alert"]];

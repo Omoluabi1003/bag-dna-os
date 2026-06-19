@@ -159,3 +159,22 @@ ETL GIS Consulting LLC is the technology strategy and implementation company beh
 5. Redeploy the latest `main` deployment as **Production**.
 6. Confirm `https://bag-dna-os.vercel.app`, metadata, icons, canonical URL, and social preview.
 7. Optionally enable GitHub Actions as the Pages source and run **Deploy static demo to GitHub Pages**.
+
+## Public Dataset Intelligence Strategy
+
+BAG-DNA OS uses public datasets as trust infrastructure, not as a decorative open-data checklist. Public aviation, geospatial, weather, macroeconomic, health-security and machine-learning discovery sources help explain why a baggage identity, corridor, airport or custody event deserves higher or lower operational attention.
+
+### What is live now
+- OpenStreetMap/Overpass, World Bank-style readiness indicators and existing aviation/weather adapters are represented as live-attempt integrations where practical.
+- Existing OurAirports, Open-Meteo, OpenSky and REST Countries adapters remain the preferred enrichment path for airport metadata, weather risk, aircraft movement context and country grouping.
+
+### What is seeded
+- The dataset catalog, Nigeria airport geometry, corridor GeoJSON, country readiness index, threat pattern examples, knowledge graph and event graph include local fallback seed data so the product remains complete when public services are unavailable.
+- Kaggle, Google Dataset Search, AWS Open Data Registry, Azure Open Datasets and UCI are treated as discovery/model-roadmap layers rather than hard runtime dependencies.
+
+### Future integrations
+- Governed server-side jobs can cache bounded airport map extracts, public readiness indicators, weather/geospatial features and approved ML benchmark data.
+- Dataset candidates can be promoted only after licensing, quality and privacy reviews.
+
+### Why it strengthens baggage identity trust
+Public intelligence adds explainable context to BAG-DNA IDs: airport readiness, route pressure, weather disruption, health-security controls, aircraft movement and simulated threat-pattern similarity. This makes risk scores and evidence narratives easier for airport teams, airlines and passengers to trust while preserving graceful degraded operation.
