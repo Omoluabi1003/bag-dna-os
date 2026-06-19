@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const routes = [
-  "/", "/dashboard", "/tagging", "/fingerprint", "/scanner", "/verification-center",
+  "/", "/dashboard", "/checkpoint-intelligence", "/tagging", "/fingerprint", "/scanner", "/verification-center",
   "/trust-graph", "/threat-graph", "/knowledge-graph", "/event-graph", "/memory-graph",
   "/collective-intelligence", "/intelligence-center", "/custody", "/ledger", "/investigation",
   "/claim-verification", "/passport", "/passenger", "/staff-monitoring", "/tamper-seals",
@@ -28,23 +28,11 @@ test.describe("BAG-DNA OS navigation smoke", () => {
     await expect(page.getByRole("link", { name: "Verification Center" })).not.toBeVisible();
   });
 
-  test("notification drawer closes", async ({ page }) => {
+  test("checkpoint alert control opens a dedicated page instead of an overlay", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.getByRole("button", { name: /checkpoint alerts/i }).click();
-    await page.keyboard.press("Escape");
-    await expect(page.getByText("Checkpoint Intelligence")).not.toBeVisible();
-  });
-
-  test("notification drawer can close from the backdrop and route to full pages", async ({ page }) => {
-    await page.goto("/dashboard");
-    await page.getByRole("button", { name: /checkpoint alerts/i }).click();
-    await expect(page.getByRole("dialog", { name: "Checkpoint Intelligence" })).toBeVisible();
-    await page.getByRole("button", { name: "Close checkpoint intelligence backdrop" }).click();
-    await expect(page.getByText("Checkpoint Intelligence")).not.toBeVisible();
-
-    await page.getByRole("button", { name: /checkpoint alerts/i }).click();
-    await page.getByRole("link", { name: "Verification Center" }).click();
-    await expect(page).toHaveURL(/\/verification-center$/);
-    await expect(page.getByRole("heading", { name: "Verification Center" })).toBeVisible();
+    await page.getByRole("link", { name: /checkpoint alerts/i }).click();
+    await expect(page).toHaveURL(/\/checkpoint-intelligence$/);
+    await expect(page.getByRole("heading", { name: "Checkpoint Intelligence" })).toBeVisible();
+    await expect(page.getByText("Priority Alerts")).toBeVisible();
   });
 });

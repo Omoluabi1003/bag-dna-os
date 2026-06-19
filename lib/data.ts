@@ -57,6 +57,7 @@ export const navItems = [
   { label: "Tagging Station", href: "/tagging" },
   { label: "AI Fingerprint", href: "/fingerprint" },
   { label: "Checkpoint Scanner", href: "/scanner" },
+  { label: "Checkpoint Intelligence", href: "/checkpoint-intelligence" },
   { label: "Verification Center", href: "/verification-center" },
   { label: "Trust Graph", href: "/trust-graph" },
   { label: "Threat Graph", href: "/threat-graph" },
