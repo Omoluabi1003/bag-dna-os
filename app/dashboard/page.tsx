@@ -50,8 +50,8 @@ export default function DashboardPage() {
           {[
             ["Bag Integrity Score", `${integrity.score} · ${integrity.band}`, integrity.explanation],
             ["Identity Confidence", `${identity.confidencePercentage}%`, identity.verificationSummary],
-            ["Threat Signature Match", `${threat.matchedThreats[0].id} · ${threat.threatConfidence}%`, threat.evidence[0]],
-            ["Airport Trust Index", `${airport.airportTrustIndex} · ${airport.riskTrend}`, "Airport trust index suggests additional verification at arrival if seal status changes."],
+            ["Threat Signature Match", `${threat.matchedThreats[0]?.id ?? "None"} · ${threat.threatConfidence}%`, threat.evidence[0] ?? "No evidence"],
+            ["Airport Trust Index", `${airport?.airportTrustIndex ?? "N/A"} · ${airport?.riskTrend ?? "Unknown"}`, "Airport trust index suggests additional verification at arrival if seal status changes."],
             ["Insurance Exposure", insurance.estimatedClaimExposure, insurance.insurerSummary],
             ["Collective Intelligence Alerts", `${network.anonymizedThreats.length} shared`, network.recommendedNetworkAction],
             ["Recommended Actions", "Security + passenger + insurance", threat.recommendedAction],

@@ -1,3 +1,24 @@
 import { intelligenceCase } from "@/lib/data/intelligenceSeed";
-export type IdentityConfidenceOutput={confidencePercentage:number;identityStatus:string;mismatchReasons:string[];verificationSummary:string;recommendedAction:string};
-export function calculateIdentityConfidence(input= intelligenceCase):IdentityConfidenceOutput{const misses:string[]=[];let c=82;if(input.rfidMatch)c+=4;else misses.push("RFID does not match original tag");if(input.nfcMatch)c+=4;else misses.push("NFC secure token mismatch");if(input.qrValid)c+=2;else misses.push("QR token invalid");if(input.visualDnaMatch>=96)c+=5;else misses.push("Visual fingerprint changed");if(input.weightDeltaKg<0.5)c+=2;else misses.push("Weight profile changed");if(input.dimensionsMatch)c+=1;else misses.push("Dimensions changed");if(input.sealStatus==="intact")c+=2;else misses.push("Seal not intact");if(input.routeConsistent)c+=1;else misses.push("Route inconsistent");c=Math.min(99.6,c);const status=c>=98?"Original bag verified":c>=90?"Same bag highly likely":"Identity requires review";return{confidencePercentage:c,identityStatus:status,mismatchReasons:misses,verificationSummary:`${status}. Visual DNA match increased identity confidence to ${input.visualDnaMatch}%, with RFID, NFC and QR agreeing with the issued BAG-DNA ID.`,recommendedAction:c>=98?"Passenger-safe release; keep evidence ledger attached.":"Hold bag and compare physical profile with check-in record."}}
+
+type IntelligenceInput = typeof intelligenceCase;
+export type IdentityConfidenceOutput = { confidencePercentage: number; identityStatus: string; mismatchReasons: string[]; verificationSummary: string; recommendedAction: string };
+const clamp = (value: number) => Math.max(0, Math.min(100, Math.round(value)));
+
+export function calculateIdentityConfidence(input: IntelligenceInput = intelligenceCase): IdentityConfidenceOutput {
+  let score = 40;
+  const positive: string[] = [];
+  const mismatchReasons: string[] = [];
+  const apply = (ok: boolean, plus: number, minus: number, good: string, bad: string) => { if (ok) { score += plus; positive.push(good); } else { score -= minus; mismatchReasons.push(bad); } };
+  apply(Boolean(input.rfidMatch), 8, 25, "RFID match +8", "RFID mismatch -25");
+  apply(Boolean(input.nfcMatch), 8, 25, "NFC match +8", "NFC mismatch -25");
+  apply(Boolean(input.qrValid), 4, 0, "QR valid +4", "QR invalid");
+  apply((input.visualDnaMatch ?? 0) > 96, 10, 20, "Visual DNA above 96% +10", "Visual mismatch -20");
+  apply((input.weightDeltaKg ?? Number.POSITIVE_INFINITY) < 0.5, 6, 12, "Weight within tolerance +6", "Weight anomaly -12");
+  apply(Boolean(input.dimensionsMatch), 4, 8, "Dimensions match +4", "Dimension mismatch -8");
+  apply(input.sealStatus === "intact", 8, 20, "Seal intact +8", "Broken seal -20");
+  apply(Boolean(input.routeConsistent), 4, 10, "Route consistent +4", "Route inconsistency -10");
+  apply((input.custodyContinuity ?? 0) >= 95, 8, 15, "Custody continuity +8", "Custody gap -15");
+  const confidencePercentage = clamp(score);
+  const identityStatus = confidencePercentage >= 98 ? "Original bag verified" : confidencePercentage >= 90 ? "Same bag highly likely" : confidencePercentage >= 75 ? "Identity requires review" : "Potential substitution detected";
+  return { confidencePercentage, identityStatus, mismatchReasons, verificationSummary: `${identityStatus}. Positive signals: ${positive.join(", ") || "none"}. Negative signals: ${mismatchReasons.join(", ") || "none"}.`, recommendedAction: confidencePercentage >= 90 ? "Release through verified custody with evidence ledger attached." : "Hold bag for manual identity investigation before passenger or claim release." };
+}
