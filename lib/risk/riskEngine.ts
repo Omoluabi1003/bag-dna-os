@@ -23,3 +23,34 @@ export function calculateRisk(input: RiskInputs) {
   const recommendedAction = band === "Critical" ? "Place bag on security hold and initiate physical identity reconciliation." : band === "High" ? "Route to secondary inspection and supervisor review." : band === "Elevated" ? "Increase verification frequency at the next custody checkpoints." : "Continue standard custody monitoring.";
   return { overallScore:score, riskBand:band, reasons:reasons.length ? reasons : ["No material anomalies detected"], recommendedAction };
 }
+
+export type PublicRiskContext = {
+  weatherRisk?: number;
+  airportReadinessRisk?: number;
+  corridorPressure?: number;
+  countryReadinessRisk?: number;
+  aircraftMovementContext?: number;
+  threatPatternSimilarity?: number;
+  custodyMismatchEvents?: number;
+};
+
+export function calculatePublicDataRisk(input: RiskInputs, context: PublicRiskContext = {}) {
+  const base = calculateRisk(input);
+  const publicReasons: string[] = [];
+  const weighted = [
+    [context.weatherRisk, 0.10, "Weather conditions add handling uncertainty"],
+    [context.airportReadinessRisk, 0.14, "Airport readiness context requires tighter verification"],
+    [context.corridorPressure, 0.12, "Corridor pressure is above normal operating baseline"],
+    [context.countryReadinessRisk, 0.10, "Country readiness indicators increase protection priority"],
+    [context.aircraftMovementContext, 0.08, "Aircraft movement context suggests operational disruption"],
+    [context.threatPatternSimilarity, 0.18, "Pattern resembles known simulated baggage integrity threats"],
+    [context.custodyMismatchEvents ? Math.min(100, context.custodyMismatchEvents * 18) : undefined, 0.16, "Custody mismatch events are present"],
+  ] as const;
+  const publicLift = weighted.reduce((sum, [value, weight, reason]) => {
+    if (typeof value === "number" && value > 35) publicReasons.push(reason);
+    return sum + (typeof value === "number" ? value * weight : 0);
+  }, 0);
+  const overallScore = Math.round(Math.min(100, base.overallScore * 0.78 + publicLift));
+  const riskBand: RiskBand = overallScore < 20 ? "Low" : overallScore < 40 ? "Monitor" : overallScore < 60 ? "Elevated" : overallScore < 80 ? "High" : "Critical";
+  return { ...base, overallScore, riskBand, publicContextReasons: publicReasons, recommendedAction: publicReasons.length ? `${base.recommendedAction} Include public-data context in the review narrative.` : base.recommendedAction };
+}

@@ -1,0 +1,1 @@
+export const airportSeed=[{iata:"LOS",name:"Murtala Muhammed International",country:"Nigeria",lat:6.5774,lon:3.3212},{iata:"ABV",name:"Nnamdi Azikiwe International",country:"Nigeria",lat:9.0068,lon:7.2632},{iata:"ATL",name:"Hartsfield-Jackson Atlanta International",country:"United States",lat:33.6407,lon:-84.4277}];

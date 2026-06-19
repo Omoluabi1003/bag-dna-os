@@ -1,0 +1,1 @@
+export const corridorGeojson={type:"FeatureCollection",features:[{type:"Feature",properties:{name:"LOS-ATL trusted corridor"},geometry:{type:"LineString",coordinates:[[3.3212,6.5774],[-84.4277,33.6407]]}},{type:"Feature",properties:{name:"ABV-LHR readiness corridor"},geometry:{type:"LineString",coordinates:[[7.2632,9.0068],[-0.4543,51.47]]}}]};

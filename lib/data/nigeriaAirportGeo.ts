@@ -1,0 +1,1 @@
+export const nigeriaAirportGeo={type:"FeatureCollection",features:[{type:"Feature",properties:{iata:"LOS",name:"Murtala Muhammed International"},geometry:{type:"Point",coordinates:[3.3212,6.5774]}},{type:"Feature",properties:{iata:"ABV",name:"Nnamdi Azikiwe International"},geometry:{type:"Point",coordinates:[7.2632,9.0068]}}]};
