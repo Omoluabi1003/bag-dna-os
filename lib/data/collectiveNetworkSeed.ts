@@ -1,0 +1,1 @@
+export const collectiveNetworkSeed = ["LOS shared anonymized TS-019 stolen-tag pattern with LHR and YYZ","ABV broadcast corridor weather-control advisory to DXB","DOH confirmed no passenger identifiers in shared threat signature","IST warning reduced repeated stolen-tag pattern by 18%"];

@@ -6,6 +6,7 @@ import { CustodyChart } from "@/components/dashboard/CustodyChart";
 import { IncidentTrend } from "@/components/dashboard/IncidentTrend";
 import { RiskChart } from "@/components/dashboard/RiskChart";
 import { LiveDataPanel } from "@/components/integrations/LiveDataPanel";
+import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns, scoreAirportReputation, calculateInsuranceIntelligence, buildCollectiveIntelligence } from "@/lib/intelligence";
 
 const nigeriaSignals = [
   ["Lagos hub activity", "4,820 bags", "Peak international bank"],
@@ -19,6 +20,12 @@ const nigeriaSignals = [
 ];
 
 export default function DashboardPage() {
+  const integrity = calculateIntegrityScore();
+  const identity = calculateIdentityConfidence();
+  const threat = detectThreatPatterns();
+  const airport = scoreAirportReputation()[0];
+  const insurance = calculateInsuranceIntelligence();
+  const network = buildCollectiveIntelligence();
   return (
     <AppShell title="Aviation Operations Dashboard">
       <div className="mb-9 flex flex-wrap items-end justify-between gap-5">
@@ -36,6 +43,21 @@ export default function DashboardPage() {
         <MetricCard label="Claim Closure Rate" value="98.9%" change="+0.6%" detail="verified release" icon={ShieldCheck}/>
         <MetricCard label="Mismatch Detection" value="43" change="−18.1%" detail="17 stopped pre-load" icon={AlertTriangle}/>
       </div>
+
+      <section className="glass mt-7 p-6 md:p-7">
+        <SectionHeading eyebrow="Visible Intelligence Layer" title="Same-bag proof, threat impact and recommended actions" action={<Badge tone="emerald">Intelligence active</Badge>}/>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Bag Integrity Score", `${integrity.score} · ${integrity.band}`, integrity.explanation],
+            ["Identity Confidence", `${identity.confidencePercentage}%`, identity.verificationSummary],
+            ["Threat Signature Match", `${threat.matchedThreats[0].id} · ${threat.threatConfidence}%`, threat.evidence[0]],
+            ["Airport Trust Index", `${airport.airportTrustIndex} · ${airport.riskTrend}`, "Airport trust index suggests additional verification at arrival if seal status changes."],
+            ["Insurance Exposure", insurance.estimatedClaimExposure, insurance.insurerSummary],
+            ["Collective Intelligence Alerts", `${network.anonymizedThreats.length} shared`, network.recommendedNetworkAction],
+            ["Recommended Actions", "Security + passenger + insurance", threat.recommendedAction],
+          ].map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><b className="mt-2 block text-lg text-ivory">{value}</b><p className="mt-2 text-[11px] leading-5 text-cyan">{detail}</p></article>)}
+        </div>
+      </section>
       <section className="glass mt-7 p-6 md:p-7">
         <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="emerald">Operational coverage</Badge>}/>
         <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">Decision support for airport authorities, airlines, customs, security teams and insurers—protecting baggage identity, airport reputation and chain-of-custody assurance.</p>
