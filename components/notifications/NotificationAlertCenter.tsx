@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, CheckCircle2, Clock3, FileText, ShieldAlert, X } from "lucide-react";
+import { Bell, CheckCircle2, Clock3, ExternalLink, FileText, ShieldAlert, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useModalManager } from "@/components/ui/ModalManager";
 
@@ -132,13 +133,14 @@ export function NotificationAlertCenter({
         </span>
       </button>
 
-      <div
-        aria-hidden={!isAlertCenterOpen}
-        className={`fixed inset-0 z-[70] bg-black/25 backdrop-blur-[1px] transition-opacity duration-[180ms] ${
-          isAlertCenterOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        onClick={closeAlertCenter}
-      />
+      {isAlertCenterOpen && (
+        <button
+          type="button"
+          aria-label="Close checkpoint intelligence backdrop"
+          className="fixed inset-0 z-[70] cursor-default bg-black/70 backdrop-blur-[2px] transition-opacity duration-[180ms]"
+          onClick={closeAlertCenter}
+        />
+      )}
 
       <aside
         role={isAlertCenterOpen ? "dialog" : undefined}
@@ -146,7 +148,7 @@ export function NotificationAlertCenter({
         aria-hidden={!isAlertCenterOpen}
         inert={!isAlertCenterOpen ? true : undefined}
         aria-labelledby="checkpoint-intelligence-title"
-        className={`fixed inset-x-0 bottom-0 z-[90] max-h-[86vh] overflow-hidden overscroll-contain rounded-t-[28px] border border-white/[.10] bg-[#081927]/98 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-[180ms] md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-l-[28px] md:rounded-r-none ${
+        className={`fixed inset-x-0 bottom-0 z-[90] max-h-[86vh] overflow-hidden overscroll-contain rounded-t-[28px] border border-white/[.10] bg-[#081927] shadow-2xl shadow-black/40 ring-1 ring-cyan/10 transition-transform duration-[180ms] md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-l-[28px] md:rounded-r-none ${
           isAlertCenterOpen ? "pointer-events-auto translate-y-0 md:translate-x-0" : "pointer-events-none translate-y-full md:translate-x-full md:translate-y-0"
         }`}
         onClick={(event) => event.stopPropagation()}
@@ -228,6 +230,22 @@ export function NotificationAlertCenter({
               )}
             </section>
 
+
+            <section>
+              <SectionHeading icon={<ExternalLink size={14} />} label="Open as full pages" />
+              <div className="grid gap-2">
+                <DrawerPageLink href="/verification-center" onNavigate={closeAlertCenter}>
+                  Verification Center
+                </DrawerPageLink>
+                <DrawerPageLink href="/custody" onNavigate={closeAlertCenter}>
+                  Custody Control
+                </DrawerPageLink>
+                <DrawerPageLink href="/scanner" onNavigate={closeAlertCenter}>
+                  Live Checkpoint Scanner
+                </DrawerPageLink>
+              </div>
+            </section>
+
             <section>
               <SectionHeading icon={<FileText size={14} />} label="Custody Notes" />
               {custodyNotes.length === 0 ? (
@@ -269,5 +287,18 @@ function EventMeta({ label, value, highlight = false }: { label: string; value: 
       <dt className="text-[9px] uppercase tracking-wider text-mist/70">{label}</dt>
       <dd className={`mt-1 truncate font-semibold ${highlight ? "text-cyan" : "text-ivory"}`}>{value}</dd>
     </div>
+  );
+}
+
+function DrawerPageLink({ href, onNavigate, children }: { href: string; onNavigate: () => void; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className="flex items-center justify-between rounded-2xl border border-cyan/15 bg-cyan/[.08] px-4 py-3 text-xs font-bold text-ivory transition hover:border-cyan/35 hover:bg-cyan/[.13]"
+    >
+      <span>{children}</span>
+      <ExternalLink size={13} className="text-cyan" />
+    </Link>
   );
 }
