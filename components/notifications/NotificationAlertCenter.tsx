@@ -142,11 +142,13 @@ export function NotificationAlertCenter({
       />
 
       <aside
-        role="dialog"
-        aria-modal="true"
+        role={isAlertCenterOpen ? "dialog" : undefined}
+        aria-modal={isAlertCenterOpen ? "true" : undefined}
+        aria-hidden={!isAlertCenterOpen}
+        inert={!isAlertCenterOpen ? true : undefined}
         aria-labelledby="checkpoint-intelligence-title"
         className={`fixed inset-x-0 bottom-0 z-[80] max-h-[86vh] overflow-hidden overscroll-contain rounded-t-[28px] border border-white/[.10] bg-[#081927]/95 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-transform duration-[180ms] md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[380px] md:rounded-l-[28px] md:rounded-r-none ${
-          isAlertCenterOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full md:translate-y-0"
+          isAlertCenterOpen ? "pointer-events-auto translate-y-0 md:translate-x-0" : "pointer-events-none translate-y-full md:translate-x-full md:translate-y-0"
         }`}
         onClick={(event) => event.stopPropagation()}
       >
