@@ -2,6 +2,7 @@
 
 import { Bell, CheckCircle2, Clock3, FileText, ShieldAlert, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useModalManager } from "@/components/ui/ModalManager";
 
 export type CheckpointAlertSeverity = "info" | "warning" | "critical";
 
@@ -89,47 +90,18 @@ export function NotificationAlertCenter({
   const [isAlertCenterOpen, setIsAlertCenterOpen] = useState(false);
   const unreadAlerts = useMemo(() => alerts.filter((alert) => !alert.read), [alerts]);
   const badgeLabel = unreadAlerts.length > 9 ? "9+" : String(unreadAlerts.length);
-  const scrollPositionRef = useRef(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const { registerModal, closeModal } = useModalManager();
 
   useEffect(() => {
     if (!isAlertCenterOpen) return;
-
-    const { body } = document;
-    const previousBodyPosition = body.style.position;
-    const previousBodyTop = body.style.top;
-    const previousBodyWidth = body.style.width;
-    const previousBodyOverflow = body.style.overflow;
-
-    scrollPositionRef.current = window.scrollY;
-    body.style.position = "fixed";
-    body.style.top = `-${scrollPositionRef.current}px`;
-    body.style.width = "100%";
-    body.style.overflow = "hidden";
-
-    return () => {
-      body.style.position = previousBodyPosition;
-      body.style.top = previousBodyTop;
-      body.style.width = previousBodyWidth;
-      body.style.overflow = previousBodyOverflow;
-      window.scrollTo(0, scrollPositionRef.current);
-    };
-  }, [isAlertCenterOpen]);
-
-  useEffect(() => {
-    if (!isAlertCenterOpen) return;
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsAlertCenterOpen(false);
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isAlertCenterOpen]);
+    registerModal("checkpoint-alert-center", () => setIsAlertCenterOpen(false), triggerRef.current);
+    return () => closeModal("checkpoint-alert-center");
+  }, [closeModal, isAlertCenterOpen, registerModal]);
 
   function closeAlertCenter() {
     setIsAlertCenterOpen(false);
+    closeModal("checkpoint-alert-center");
   }
 
   function handleCloseControl(event: React.MouseEvent<HTMLButtonElement> | React.PointerEvent<HTMLButtonElement>) {
@@ -144,6 +116,7 @@ export function NotificationAlertCenter({
         type="button"
         aria-label="Open checkpoint alerts and verification history"
         aria-expanded={isAlertCenterOpen}
+        ref={triggerRef}
         onClick={() => setIsAlertCenterOpen(true)}
         className={`relative grid h-11 min-h-11 w-11 min-w-11 place-items-center rounded-xl border text-mist transition duration-[180ms] active:scale-95 md:h-10 md:min-h-10 md:w-10 md:min-w-10 ${
           isAlertCenterOpen
