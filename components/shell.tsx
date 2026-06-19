@@ -7,7 +7,6 @@ import { useState } from "react";
 import { Logo } from "./logo";
 import { BackButton } from "./ui/BackButton";
 import { NotificationAlertCenter } from "./notifications/NotificationAlertCenter";
-import { ModalManagerProvider } from "./ui/ModalManager";
 import { navItems } from "@/lib/data";
 
 export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlanta International" }: {
@@ -17,7 +16,6 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
   const [open, setOpen] = useState(false);
 
   return (
-    <ModalManagerProvider>
     <div className="min-h-screen bg-ink">
       <aside className={`fixed inset-y-0 left-0 z-50 w-[272px] border-r border-white/[.08] bg-[#081927]/90 p-5 shadow-2xl backdrop-blur-2xl transition-transform lg:translate-x-0 lg:shadow-none ${open ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between">
@@ -68,6 +66,5 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
         <main className="min-h-[calc(100vh-76px)] p-5 md:p-10">{pathname !== "/dashboard" && <div className="mb-5"><BackButton /></div>}{children}</main>
       </div>
     </div>
-    </ModalManagerProvider>
   );
 }
