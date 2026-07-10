@@ -335,11 +335,11 @@ export default function LandingPage() {
           <p className="section-kicker">Operational confidence, engineered</p>
           <h2 className="section-title">Every passenger has an identity. Every bag should too.</h2>
           <p className="section-copy mx-auto">Give your baggage network a secure, intelligent foundation built for the realities of modern aviation.</p>
-          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/dashboard" className="premium-button justify-center px-6 py-3.5">Explore Command Center <ArrowRight size={15}/></Link><Link href="/about" className="secondary-button justify-center px-6 py-3.5">Meet ETL GIS</Link></div>
+          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/dashboard" className="premium-button justify-center px-6 py-3.5">Explore Command Center <ArrowRight size={15}/></Link><Link href="/about" className="secondary-button justify-center px-6 py-3.5">Meet the Developer</Link></div>
         </motion.div>
       </section>
 
-      <footer className="border-t border-black/[.06] bg-white px-5 py-10 md:px-8"><div className="landing-logo mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 lg:flex-row lg:items-center"><Logo/><nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-3 text-xs font-medium text-slate-600"><Link href="/beta">Beta readiness</Link><Link href="/integrations">API roadmap</Link><Link href="/investors">Investors</Link><Link href="/docs">Technical docs</Link><Link href="/about">ETL GIS</Link></nav><p className="text-xs text-slate-500">© 2026 ETL GIS Consulting LLC.</p></div></footer>
+      <footer className="border-t border-black/[.06] bg-white px-5 py-10 md:px-8"><div className="landing-logo mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 lg:flex-row lg:items-center"><Logo/><nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-3 text-xs font-medium text-slate-600"><Link href="/beta">Beta readiness</Link><Link href="/integrations">API roadmap</Link><Link href="/investors">Investors</Link><Link href="/docs">Technical docs</Link><Link href="/about">Developer</Link></nav><p className="text-xs text-slate-500">Developed by Paul Iyogun.</p></div></footer>
     </main>
   );
 }
