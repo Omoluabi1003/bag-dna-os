@@ -1,5 +1,5 @@
-import airports from "@/lib/data/nigeria-airports.geojson";
-import corridors from "@/lib/data/nigeria-corridors.geojson";
+import airports from "@/lib/data/regional-airports.geojson";
+import corridors from "@/lib/data/regional-corridors.geojson";
 import zones from "@/lib/data/airport-zones.geojson";
 import trails from "@/lib/data/baggage-trails.geojson";
 import type { IntegrationResult } from "./types";
