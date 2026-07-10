@@ -41,7 +41,7 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
           ))}
         </nav>
         <div className="absolute bottom-5 left-5 right-5 border-t border-white/[.07] pt-4">
-          <Link href="/about" className="flex items-center gap-3 text-[11px] text-mist hover:text-ivory"><CircleHelp size={15}/> About ETL GIS</Link>
+          <Link href="/about" className="flex items-center gap-3 text-[11px] text-mist hover:text-ivory"><CircleHelp size={15}/> About the Developer</Link>
           <div className="mt-4 flex items-center gap-3">
             <div className="grid h-8 w-8 place-items-center rounded-full bg-cyan/10 text-[10px] font-bold text-cyan">AO</div>
             <div><p className="text-[11px] font-bold">A. Okon</p><p className="text-[9px] text-mist">Security operator</p></div>
