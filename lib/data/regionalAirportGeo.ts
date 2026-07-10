@@ -1,0 +1,1 @@
+export const regionalAirportGeo={type:"FeatureCollection",features:[{type:"Feature",properties:{iata:"HBA",name:"Primary International Hub"},geometry:{type:"Point",coordinates:[3.3212,6.5774]}},{type:"Feature",properties:{iata:"HBB",name:"Secondary Capital Hub"},geometry:{type:"Point",coordinates:[7.2632,9.0068]}}]};
