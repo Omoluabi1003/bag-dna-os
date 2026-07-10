@@ -4,7 +4,7 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 export function StatusDot({ tone = "emerald" }: { tone?: string }) {
   const tones: Record<string, string> = {
     emerald: "bg-emerald-400", amber: "bg-amber-400", red: "bg-red-400",
-    cyan: "bg-cyan", blue: "bg-blue-400", slate: "bg-slate-400",
+    cyan: "bg-cyan", blue: "bg-blue-400", gold: "bg-gold", slate: "bg-slate-400",
   };
   return <span className={`inline-block h-1.5 w-1.5 rounded-full ${tones[tone] || tones.slate}`} />;
 }
@@ -16,6 +16,7 @@ export function Badge({ children, tone = "slate" }: { children: React.ReactNode;
     red: "border-red-400/20 bg-red-400/10 text-red-300",
     cyan: "border-cyan/20 bg-cyan/10 text-cyan",
     blue: "border-blue-400/20 bg-blue-400/10 text-blue-300",
+    gold: "border-gold/30 bg-gold/10 text-gold",
     slate: "border-white/10 bg-white/5 text-mist",
   };
   return <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-[.02em] ${tones[tone] || tones.slate}`}>{children}</span>;
