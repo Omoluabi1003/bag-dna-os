@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     template: "%s | BAG-DNA OS™",
   },
   description:
-    "Digital Baggage Identity and Chain-of-Custody Intelligence Platform",
+    "Global digital baggage identity and chain-of-custody intelligence platform designed for ICAO-aligned aviation review.",
   applicationName: "BAG-DNA OS",
   alternates: { canonical: "/" },
-  keywords: ["aviation baggage intelligence", "digital baggage identity", "Nigeria aviation", "airport GIS", "chain of custody"],
+  keywords: ["aviation baggage intelligence", "digital baggage identity", "ICAO alignment", "airport GIS", "chain of custody"],
   manifest: `${basePath}/manifest.webmanifest`,
   icons: {
     icon: [
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "BAG-DNA OS™",
     title: "BAG-DNA OS™",
-    description: "The Digital Identity Layer for Every Checked Bag.",
+    description: "The ICAO-aligned digital identity layer for every checked bag.",
     images: [
       {
         url: socialImageUrl,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "BAG-DNA OS™",
-    description: "The Digital Identity Layer for Every Checked Bag.",
+    description: "The ICAO-aligned digital identity layer for every checked bag.",
     images: [socialImageUrl],
   },
   robots: { index: true, follow: true },
