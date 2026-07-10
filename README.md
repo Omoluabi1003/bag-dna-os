@@ -2,7 +2,7 @@
 
 **Every passenger has an identity. Every bag should too.**
 
-BAG-DNA OS is the digital identity, AI chain-of-custody, GIS digital twin, and aviation security intelligence operating system for checked baggage. It is developed by **ETL GIS Consulting LLC** for airports, airlines, aviation authorities, customs and border agencies, insurers, security teams, and passengers.
+BAG-DNA OS is the digital identity, AI chain-of-custody, GIS digital twin, and aviation security intelligence operating system for checked baggage. It is **Developed by Paul Iyogun** for airports, airlines, aviation authorities, customs and border agencies, insurers, security teams, and passengers.
 
 ## Category position
 
@@ -144,9 +144,9 @@ The interface explicitly labels simulated content as **Beta data mode** and disp
 
 The deployment pathway begins with a controlled airport demonstration, then progresses through airline integration, customs and border collaboration, selected high-risk corridor operations, and international standardization. Initial corridor candidates include Canada–Africa, North America–Caribbean, Europe–Africa, and Latin American transit routes.
 
-## ETL GIS Consulting LLC
+## Developer attribution
 
-ETL GIS Consulting LLC is the technology strategy and implementation company behind BAG-DNA OS. Its capabilities include enterprise GIS architecture, AI-integrated automation, spatial analytics, digital governance modernization, public-sector decision systems, operational intelligence dashboards, and data-driven security workflows.
+BAG-DNA OS was developed by Paul Iyogun. The platform reflects his experience in enterprise GIS architecture, AI-integrated automation, spatial analytics, digital governance modernization, public-sector decision systems, operational intelligence dashboards, and data-driven security workflows.
 
 > This repository is an investor- and pilot-ready MVP using realistic demonstration data. Production deployment requires stakeholder governance, privacy and security review, system integration, hardware certification, and operating-procedure validation.
 
