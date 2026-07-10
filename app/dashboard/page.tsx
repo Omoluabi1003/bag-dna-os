@@ -8,13 +8,13 @@ import { RiskChart } from "@/components/dashboard/RiskChart";
 import { LiveDataPanel } from "@/components/integrations/LiveDataPanel";
 import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns, scoreAirportReputation, calculateInsuranceIntelligence, buildCollectiveIntelligence } from "@/lib/intelligence";
 
-const nigeriaSignals = [
-  ["Lagos hub activity", "4,820 bags", "Peak international bank"],
-  ["Abuja hub activity", "2,140 bags", "Domestic transfer pressure"],
-  ["Lagos → Abuja", "14 risk", "High-volume domestic proof corridor"],
-  ["Lagos → London", "31 risk", "Claims and customs intelligence value"],
-  ["Abuja → Dubai", "27 risk", "International outbound watch"],
-  ["Domestic baggage volume", "68%", "Nigeria network share"],
+const corridorSignals = [
+  ["Primary hub activity", "4,820 bags", "Peak international departure bank"],
+  ["Secondary hub activity", "2,140 bags", "Regional transfer pressure"],
+  ["Primary → Secondary", "14 risk", "High-volume domestic proof corridor"],
+  ["Primary → Global Gateway", "31 risk", "Claims and customs intelligence value"],
+  ["Secondary → Transfer Gateway", "27 risk", "International outbound watch"],
+  ["Network baggage volume", "68%", "Demonstration corridor share"],
   ["Outbound risk", "2.7%", "Enhanced reconciliation candidates"],
   ["Claim dispute indicators", "43", "Evidence review opportunities"],
 ];
@@ -27,14 +27,14 @@ export default function DashboardPage() {
   const insurance = calculateInsuranceIntelligence();
   const network = buildCollectiveIntelligence();
   return (
-    <AppShell title="Aviation Operations Dashboard">
+    <AppShell title="Aviation Operations Dashboard" eyebrow="Global corridor command · ICAO-aligned controls">
       <div className="mb-9 flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cyan">Live operating picture</p>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-[-.04em] text-ivory md:text-5xl">Every bag. One clear view.</h2>
-          <p className="mt-3 text-sm text-mist">Monday, June 15 · 17:02 UTC · Nigeria and global corridor operations</p>
+          <p className="mt-3 text-sm text-mist">Monday, June 15 · 17:02 UTC · Multi-airport corridor operations</p>
         </div>
-        <div className="flex gap-2"><Badge tone="emerald"><StatusDot/> Live</Badge><Badge>Last sync 4 sec ago</Badge></div>
+        <div className="flex flex-wrap gap-2"><Badge tone="emerald"><StatusDot/> Live</Badge><Badge>Last sync 4 sec ago</Badge><Badge tone="gold">ICAO alignment review</Badge></div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <MetricCard label="Bag Integrity Score" value="96.8" change="+1.4%" detail="network average" icon={BriefcaseBusiness}/>
@@ -58,12 +58,21 @@ export default function DashboardPage() {
           ].map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><b className="mt-2 block text-lg text-ivory">{value}</b><p className="mt-2 text-[11px] leading-5 text-cyan">{detail}</p></article>)}
         </div>
       </section>
+
       <section className="glass mt-7 p-6 md:p-7">
-        <SectionHeading eyebrow="Nigeria Aviation Intelligence Hub" title="National corridor operating picture" action={<Badge tone="emerald">Operational coverage</Badge>}/>
-        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">Decision support for airport authorities, airlines, customs, security teams and insurers—protecting baggage identity, airport reputation and chain-of-custody assurance.</p>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{nigeriaSignals.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><p className="mt-3 text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[10px] leading-4 text-cyan">{detail}</p></article>)}</div>
+        <SectionHeading eyebrow="Global Aviation Intelligence Hub" title="International corridor operating picture" action={<Badge tone="gold">ICAO review posture</Badge>}/>
+        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">Decision support for airport authorities, airlines, customs, security teams and insurers, protecting baggage identity, airport reputation and chain-of-custody assurance across participating jurisdictions.</p>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{corridorSignals.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><p className="mt-3 text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[10px] leading-4 text-cyan">{detail}</p></article>)}</div>
       </section>
-      <div className="mt-7 grid gap-7 xl:grid-cols-[1.15fr_.85fr]"><LiveDataPanel/><section className="glass p-6"><SectionHeading eyebrow="Assurance indicators" title="Security and claims posture"/><div className="grid gap-3 sm:grid-cols-2">{[["Staff anomaly count","3","Assignment and geofence review"],["Tamper seal events","7","2 require investigator confirmation"],["Claim dispute indicators","43","Evidence packages available"],["Nigerian corridor risk","Moderate","Lagos weather drives monitoring"]].map(([a,b,c])=><article key={a} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-wider text-slate-300">{a}</p><b className="mt-2 block text-xl text-white">{b}</b><p className="mt-1 text-[11px] leading-5 text-slate-300">{c}</p></article>)}</div></section></div><div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
+
+      <section className="glass mt-7 p-6 md:p-7">
+        <SectionHeading eyebrow="Standards alignment" title="Security, facilitation and governance review readiness"/>
+        <div className="grid gap-4 md:grid-cols-3">{[["Security-control mapping",91,"Identity, screening, custody integrity and anomaly intervention"],["Facilitation mapping",86,"Interoperability, passenger protection and operational continuity"],["Governance evidence",93,"Privacy, auditability, human oversight and evidence export"]].map(([label,value,detail])=><article key={String(label)} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="flex justify-between text-xs"><span className="text-mist">{String(label)}</span><b className="text-emerald-300">{Number(value)}%</b></div><div className="mt-3"><Progress value={Number(value)} tone={Number(value)>90?"emerald":"gold"}/></div><p className="mt-3 text-[11px] leading-5 text-mist">{String(detail)}</p></article>)}</div>
+      </section>
+
+      <div className="mt-7 grid gap-7 xl:grid-cols-[1.15fr_.85fr]"><LiveDataPanel/><section className="glass p-6"><SectionHeading eyebrow="Assurance indicators" title="Security and claims posture"/><div className="grid gap-3 sm:grid-cols-2">{[["Staff anomaly count","3","Assignment and geofence review"],["Tamper seal events","7","2 require investigator confirmation"],["Claim dispute indicators","43","Evidence packages available"],["International corridor risk","Moderate","Weather and transfer pressure drive monitoring"]].map(([a,b,c])=><article key={a} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-wider text-slate-300">{a}</p><b className="mt-2 block text-xl text-white">{b}</b><p className="mt-1 text-[11px] leading-5 text-slate-300">{c}</p></article>)}</div></section></div>
+
+      <div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
         <section className="glass p-6 md:p-7">
           <SectionHeading eyebrow="Departure bank 03" title="Flight load progression" action={<button className="text-[9px] font-bold uppercase tracking-wider text-cyan">View all flights →</button>}/>
           <div className="overflow-x-auto">
@@ -87,6 +96,7 @@ export default function DashboardPage() {
           </div>)}</div>
         </section>
       </div>
+
       <section className="glass mt-7 p-6 md:p-7"><SectionHeading eyebrow="System throughput" title="24-hour baggage event volume"/>
         <div className="flex h-32 items-end gap-1.5">{[31,28,22,19,17,23,41,67,84,72,64,77,89,93,84,76,82,91,96,88,71,58,46,38].map((v,i)=><div key={i} className="group relative flex-1 rounded-t-full bg-cyan/15 transition hover:bg-cyan/40" style={{height:`${v}%`}}><span className="absolute -top-5 hidden text-[8px] text-cyan group-hover:block">{v}k</span></div>)}</div>
         <div className="mt-2 flex justify-between font-mono text-[8px] text-mist"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
