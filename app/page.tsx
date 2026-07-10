@@ -29,13 +29,6 @@ const alignment = [
   { title: "Governance evidence", value: "93%", text: "Privacy, cybersecurity, human oversight, auditability, and verifiable evidence export." },
 ];
 
-const journey = [
-  ["01", "Issue identity", "Create a persistent BAG-DNA identity for the passenger, journey, and physical bag."],
-  ["02", "Bind every layer", "Link secure tag, RFID, NFC, rotating QR, tamper seal, weight, and visual fingerprint."],
-  ["03", "Verify every scan", "Reconcile identity, route, custody stage, staff assignment, seal, weight, and appearance."],
-  ["04", "Detect and preserve", "Stop mismatches, preserve evidence, and release the bag only after trusted claim verification."],
-];
-
 function ProductPreview() {
   return <motion.div initial={{ opacity: 0, y: 34, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.9, delay: 0.2 }} className="hero-console relative mx-auto max-w-6xl">
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[.08] px-5 py-4 md:px-7">
