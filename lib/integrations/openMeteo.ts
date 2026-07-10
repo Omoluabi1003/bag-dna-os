@@ -8,7 +8,7 @@ export interface AviationWeather {
   risk: "Low" | "Moderate" | "Elevated";
 }
 
-export const mockLagosWeather: AviationWeather = {
+export const mockRegionalWeather: AviationWeather = {
   temperatureC: 29,
   windKph: 18,
   precipitationMm: 0.4,
@@ -48,5 +48,5 @@ export async function getAirportWeather(
           ? "Moderate"
           : "Low",
     };
-  }, mockLagosWeather);
+  }, mockRegionalWeather);
 }

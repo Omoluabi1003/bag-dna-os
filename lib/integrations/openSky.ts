@@ -10,12 +10,12 @@ export interface AircraftContext {
 }
 
 export const mockAircraft: AircraftContext[] = [
-  { callsign: "APK719", originCountry: "Nigeria", altitudeM: 9144, velocityMps: 232, longitude: 3.52, latitude: 6.81 },
+  { callsign: "GLB719", originCountry: "Pilot Region", altitudeM: 9144, velocityMps: 232, longitude: 3.52, latitude: 6.81 },
   { callsign: "VIR412", originCountry: "United Kingdom", altitudeM: 10668, velocityMps: 244, longitude: 2.91, latitude: 7.14 },
   { callsign: "QTR1406", originCountry: "Qatar", altitudeM: 10058, velocityMps: 238, longitude: 7.18, latitude: 9.12 },
 ];
 
-export async function getNigeriaAirspaceContext(): Promise<IntegrationResult<AircraftContext[]>> {
+export async function getRegionalAirspaceContext(): Promise<IntegrationResult<AircraftContext[]>> {
   return withFallback("OpenSky Network", async () => {
     const response = await fetch("https://opensky-network.org/api/states/all?lamin=4.0&lomin=2.0&lamax=14.0&lomax=15.0", {
       signal: AbortSignal.timeout(5000),

@@ -3,11 +3,11 @@ import { activateSeal } from "@/lib/seals/sealEngine";
 import type { BagPhysicalProfile, CheckpointName, DigitalBaggageIdentity, EvidenceLedgerEvent, FlightRef, PassengerIdentityRef } from "@/lib/schema/bagDnaSchema";
 
 const people = [
-  ["Omoluabi Paul", "Lagos", "LOS", "London", "LHR", "BA 074", "navy", 18.4],
-  ["Abdulazeez Ekwunife", "Abuja", "ABV", "Dubai", "DXB", "EK 786", "black", 22.1],
-  ["Regina Iyogun", "Lagos", "LOS", "Abuja", "ABV", "P4 712", "burgundy", 15.8],
-  ["Daniel Osiagor", "Lagos", "LOS", "Toronto", "YYZ", "AC 905", "silver", 24.2],
-  ["Carine Sanadina", "Port Harcourt", "PHC", "Johannesburg", "JNB", "SA 061", "teal", 19.6],
+  ["Passenger A", "Primary Metro", "HBA", "Global Gateway", "HBG", "GL 074", "navy", 18.4],
+  ["Passenger B", "Capital District", "HBB", "Transfer Gateway", "HBT", "GL 786", "black", 22.1],
+  ["Passenger C", "Primary Metro", "HBA", "Capital District", "HBB", "GL 712", "burgundy", 15.8],
+  ["Passenger D", "Primary Metro", "HBA", "North Atlantic Gateway", "HBN", "GL 905", "silver", 24.2],
+  ["Passenger E", "Coastal Metro", "HBC", "Continental Gateway", "HBCG", "GL 061", "teal", 19.6],
 ] as const;
 
 const stages: CheckpointName[] = ["Check-in Counter", "Conveyor Intake", "Screening", "Sorting Hub", "Loading Bay", "Aircraft Cargo Hold", "Arrival Scan", "Belt Assignment", "Passenger Claim"];

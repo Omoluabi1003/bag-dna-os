@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CloudRain, Plane, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui";
 import { getAirportWeather, type AviationWeather } from "@/lib/integrations/openMeteo";
-import { getNigeriaAirspaceContext, type AircraftContext } from "@/lib/integrations/openSky";
+import { getRegionalAirspaceContext, type AircraftContext } from "@/lib/integrations/openSky";
 import type { DataMode } from "@/lib/integrations/types";
 
 type PanelState = {
@@ -19,7 +19,7 @@ export function LiveDataPanel() {
 
   async function load() {
     setState((current) => ({ ...current, loading: true }));
-    const [weather, aircraft] = await Promise.all([getAirportWeather(), getNigeriaAirspaceContext()]);
+    const [weather, aircraft] = await Promise.all([getAirportWeather(), getRegionalAirspaceContext()]);
     const mode = weather.mode === "live" && aircraft.mode === "live" ? "live" : "degraded";
     setState({ loading: false, mode, weather: weather.data, aircraft: aircraft.data });
   }
@@ -33,8 +33,8 @@ export function LiveDataPanel() {
   return (
     <section className="glass p-6" aria-live="polite">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-gold">Operational context</p><h2 className="mt-2 text-xl font-semibold">Lagos corridor data pulse</h2></div>
-        <Badge tone={state.mode === "live" ? "emerald" : "amber"}>{state.mode === "live" ? "Live intelligence" : "Continuity mode"}</Badge>
+        <div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-gold">Operational context</p><h2 className="mt-2 text-xl font-semibold">International corridor data pulse</h2></div>
+        <div className="flex gap-2"><Badge tone={state.mode === "live" ? "emerald" : "amber"}>{state.mode === "live" ? "Live intelligence" : "Continuity mode"}</Badge><Badge tone="gold">ICAO review context</Badge></div>
       </div>
       {state.mode === "degraded" && <p className="mt-4 flex gap-2 rounded-xl border border-amber-400/20 bg-amber-400/10 p-3 text-[11px] text-amber-200"><TriangleAlert size={15}/> One or more environmental feeds are temporarily delayed. Continuity-protected intelligence remains available.</p>}
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
