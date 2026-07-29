@@ -71,7 +71,7 @@ function drawBackground(ctx: CanvasRenderingContext2D, width: number, height: nu
   ctx.fillRect(0, 0, width, height);
 }
 
-export default function WaveAtlasAviationMap({ aircraft = [] }: Props) {
+export default function MissionControlGeospatialEngine({ aircraft = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<Feature[]>([]);
@@ -79,6 +79,7 @@ export default function WaveAtlasAviationMap({ aircraft = [] }: Props) {
   const viewRef = useRef<ViewState>({ centerLon: -82.55, centerLat: 29.8, zoom: 4.35 });
   const dragRef = useRef<DragState>({ active: false, x: 0, y: 0 });
   const [geometryState, setGeometryState] = useState<"loading" | "online" | "degraded">("loading");
+  const [activeView, setActiveView] = useState<"operational" | "global">("operational");
 
   useEffect(() => { aircraftRef.current = aircraft; }, [aircraft]);
 
@@ -111,7 +112,7 @@ export default function WaveAtlasAviationMap({ aircraft = [] }: Props) {
       const rect = container.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 1.8);
       width = Math.max(320, rect.width);
-      height = Math.max(440, rect.height);
+      height = Math.max(320, rect.height);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
@@ -217,15 +218,21 @@ export default function WaveAtlasAviationMap({ aircraft = [] }: Props) {
     return () => { cancelAnimationFrame(frame); observer.disconnect(); };
   }, []);
 
-  const resetCorridor = () => { viewRef.current = { centerLon: -82.55, centerLat: 29.8, zoom: 4.35 }; };
-  const showWorld = () => { viewRef.current = { centerLon: -20, centerLat: 18, zoom: 1.45 }; };
+  const resetCorridor = () => {
+    viewRef.current = { centerLon: -82.55, centerLat: 29.8, zoom: 4.35 };
+    setActiveView("operational");
+  };
+  const showWorld = () => {
+    viewRef.current = { centerLon: -20, centerLat: 18, zoom: 1.45 };
+    setActiveView("global");
+  };
 
   return (
-    <div ref={containerRef} className="relative h-[560px] min-h-[460px] overflow-hidden rounded-2xl border border-white/10 bg-[#02070d] shadow-[0_30px_100px_rgba(0,0,0,.55)]">
+    <div ref={containerRef} className="relative h-full min-h-[320px] overflow-hidden bg-[#02070d]">
       <canvas
         ref={canvasRef}
         className="h-full w-full cursor-grab touch-none active:cursor-grabbing"
-        aria-label="Interactive BAG-DNA WaveAtlas-style aviation map"
+        aria-label="Interactive BAG-DNA Mission Control operational map"
         onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); dragRef.current = { active: true, x: event.clientX, y: event.clientY }; }}
         onPointerMove={(event) => {
           const drag = dragRef.current;
@@ -241,22 +248,15 @@ export default function WaveAtlasAviationMap({ aircraft = [] }: Props) {
         onWheel={(event) => { event.preventDefault(); viewRef.current.zoom = Math.max(1.1, Math.min(8.5, viewRef.current.zoom - event.deltaY * 0.0013)); }}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-        <div className="rounded-xl border border-white/10 bg-[#04111d]/88 px-3 py-2 text-[10px] shadow-2xl backdrop-blur-md">
-          <div className="font-semibold tracking-[0.17em] text-[#27d3b7]">WAVEATLAS MAP MODE</div>
-          <div className="mt-1 text-white/58">Mercator operations view · live tracks · custody corridor</div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-[#04111d]/88 px-3 py-2 text-right text-[10px] shadow-2xl backdrop-blur-md">
-          <div className="font-mono text-white">{aircraft.length.toLocaleString()} LIVE TRACKS</div>
-          <div className={`mt-1 ${geometryState === "degraded" ? "text-amber-300" : "text-white/50"}`}>{geometryState === "online" ? "GEOMETRY ONLINE" : geometryState === "degraded" ? "GEOMETRY DEGRADED" : "GEOMETRY LOADING"}</div>
-        </div>
+      <div className="pointer-events-none absolute right-3 top-3 rounded-lg border border-white/10 bg-[#04111d]/88 px-3 py-2 text-right text-[9px] shadow-2xl backdrop-blur-md">
+        <div className="font-mono text-white">{aircraft.length.toLocaleString()} LIVE TRACKS</div>
+        <div className={`mt-1 ${geometryState === "degraded" ? "text-amber-300" : "text-white/50"}`}>{geometryState === "online" ? "OPERATIONAL GEOMETRY ONLINE" : geometryState === "degraded" ? "OPERATIONAL GEOMETRY DEGRADED" : "LOADING OPERATIONAL GEOMETRY"}</div>
       </div>
 
-      <div className="absolute bottom-4 left-4 flex gap-1 rounded-xl border border-white/10 bg-[#04111d]/90 p-1 shadow-2xl backdrop-blur-md">
-        <button type="button" onClick={resetCorridor} className="rounded-lg bg-[#d7a84b]/18 px-3 py-2 text-[9px] font-semibold tracking-[.12em] text-[#f0c96e]">CORRIDOR</button>
-        <button type="button" onClick={showWorld} className="rounded-lg px-3 py-2 text-[9px] font-semibold tracking-[.12em] text-white/55 hover:text-white">WORLD</button>
+      <div className="absolute bottom-3 left-3 z-10 flex gap-1 rounded-lg border border-white/10 bg-[#04111d]/90 p-1 shadow-2xl backdrop-blur-md">
+        <button type="button" onClick={resetCorridor} aria-pressed={activeView === "operational"} className={`rounded-md px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] ${activeView === "operational" ? "bg-[#d7a84b]/18 text-[#f0c96e]" : "text-white/55 hover:text-white"}`}>OPERATIONAL VIEW</button>
+        <button type="button" onClick={showWorld} aria-pressed={activeView === "global"} className={`rounded-md px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] ${activeView === "global" ? "bg-[#d7a84b]/18 text-[#f0c96e]" : "text-white/55 hover:text-white"}`}>GLOBAL VIEW</button>
       </div>
-      <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-white/8 bg-black/35 px-2.5 py-1.5 text-[9px] text-white/45 backdrop-blur-sm">Drag to pan · scroll to zoom</div>
     </div>
   );
 }
