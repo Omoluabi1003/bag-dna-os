@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CloudRain, Plane, RefreshCw, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui";
 import { getAirportWeather, type AviationWeather } from "@/lib/integrations/openMeteo";
@@ -17,14 +17,20 @@ type PanelState = {
 export function LiveDataPanel() {
   const [state, setState] = useState<PanelState>({ loading: true, mode: "mock" });
 
-  async function load() {
+  const load = useCallback(async () => {
     setState((current) => ({ ...current, loading: true }));
     const [weather, aircraft] = await Promise.all([getAirportWeather(), getRegionalAirspaceContext()]);
     const mode = weather.mode === "live" && aircraft.mode === "live" ? "live" : "degraded";
     setState({ loading: false, mode, weather: weather.data, aircraft: aircraft.data });
-  }
+  }, []);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void load();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [load]);
 
   if (state.loading) {
     return <div className="glass flex min-h-56 items-center justify-center p-6" role="status"><RefreshCw className="mr-3 animate-spin text-cyan" size={18}/><span className="text-sm text-mist">Loading corridor context…</span></div>;
