@@ -2,14 +2,9 @@ import { Activity, DatabaseZap, Fingerprint, Network, ShieldCheck } from "lucide
 import { AppShell } from "@/components/shell";
 import { Badge, MetricCard, SectionHeading } from "@/components/ui";
 import { LiveOperationsConsole } from "@/components/dashboard/LiveOperationsConsole";
-import { getLiveOperationsSnapshot } from "@/lib/integrations/liveOperations";
 import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns } from "@/lib/intelligence";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
-
-export default async function DashboardPage() {
-  const snapshot = await getLiveOperationsSnapshot();
+export default function DashboardPage() {
   const integrity = calculateIntegrityScore();
   const identity = calculateIdentityConfidence();
   const threat = detectThreatPatterns();
@@ -20,12 +15,12 @@ export default async function DashboardPage() {
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cyan">Operational command environment</p>
           <h2 className="mt-3 max-w-4xl font-display text-4xl font-semibold tracking-[-.045em] text-ivory md:text-6xl">A working aviation console, not a marketing page.</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-mist">Current aircraft movement and airport weather are pulled from free public aviation feeds. BAG-DNA identity intelligence remains clearly separated as a controlled demonstration layer until airport and airline credentials are connected.</p>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-mist">Current aircraft movement and airport weather are pulled from free public aviation feeds in the browser. BAG-DNA identity intelligence remains clearly separated as a controlled demonstration layer until airport and airline credentials are connected.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Badge tone={snapshot.mode === "live" ? "emerald" : "amber"}>{snapshot.mode === "live" ? "Public feeds live" : "Continuity mode"}</Badge><Badge>60-second refresh</Badge><Badge tone="gold">MIA · FLL · ATL corridor</Badge></div>
+        <div className="flex flex-wrap gap-2"><Badge tone="emerald">Client feed polling</Badge><Badge>60-second refresh</Badge><Badge tone="gold">MIA · FLL · ATL corridor</Badge></div>
       </div>
 
-      <LiveOperationsConsole snapshot={snapshot}/>
+      <LiveOperationsConsole/>
 
       <section className="mt-8 rounded-[28px] border border-white/[.08] bg-[#071522] p-6 md:p-8">
         <SectionHeading eyebrow="Controlled BAG-DNA workspace" title="Identity and custody intelligence demonstration" action={<Badge tone="cyan">Sandbox data</Badge>}/>
@@ -51,7 +46,7 @@ export default async function DashboardPage() {
         <article className="glass p-6 md:p-7">
           <p className="text-[10px] font-bold uppercase tracking-[.14em] text-gold">Production posture</p>
           <h3 className="mt-2 text-xl font-semibold text-white">No fabricated “live” baggage numbers</h3>
-          <p className="mt-4 text-xs leading-6 text-mist">The console now distinguishes public operational context, controlled BAG-DNA sandbox intelligence, and integrations that require stakeholder authorization. That makes the platform more credible during airport, airline, regulator, and investor review.</p>
+          <p className="mt-4 text-xs leading-6 text-mist">The console distinguishes public operational context, controlled BAG-DNA sandbox intelligence, and integrations that require stakeholder authorization. That makes the platform more credible during airport, airline, regulator, and investor review.</p>
           <div className="mt-6 space-y-3 text-[11px]">{[
             ["Public aviation context", "Live"],
             ["BAG-DNA scoring engine", "Sandbox"],
