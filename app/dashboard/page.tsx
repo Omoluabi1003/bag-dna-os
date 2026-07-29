@@ -2,6 +2,7 @@ import { Activity, DatabaseZap, Fingerprint, Network, ShieldCheck } from "lucide
 import { AppShell } from "@/components/shell";
 import { Badge, MetricCard, SectionHeading } from "@/components/ui";
 import { LiveOperationsConsole } from "@/components/dashboard/LiveOperationsConsole";
+import { OperationsOverview } from "@/components/dashboard/OperationsOverview";
 import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns } from "@/lib/intelligence";
 
 export default function DashboardPage() {
@@ -21,6 +22,8 @@ export default function DashboardPage() {
       </div>
 
       <LiveOperationsConsole/>
+
+      <div className="mt-8"><OperationsOverview/></div>
 
       <section className="mt-8 rounded-[28px] border border-white/[.08] bg-[#071522] p-6 md:p-8">
         <SectionHeading eyebrow="Controlled BAG-DNA workspace" title="Identity and custody intelligence demonstration" action={<Badge tone="cyan">Sandbox data</Badge>}/>
@@ -54,6 +57,6 @@ export default function DashboardPage() {
           ].map(([label, value]) => <div key={label} className="flex items-center justify-between border-b border-white/[.06] pb-3"><span className="text-mist">{label}</span><b className="text-cyan">{value}</b></div>)}</div>
         </article>
       </section>
-    </AppShell>
+    <section className="mt-8 rounded-2xl border border-white/10 p-5 text-[10px] leading-5 text-mist"><b className="text-gold">Demonstration boundaries:</b> Public aircraft and weather data are supplied by third-party public sources. Baggage, passenger, custody and claims records shown are demonstration data. BAG-DNA OS does not claim ICAO approval, adoption or certification. Production airport and airline integrations require stakeholder authorization.</section></AppShell>
   );
 }

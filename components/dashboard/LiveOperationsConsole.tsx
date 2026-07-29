@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Activity, CloudRain, Database, Gauge, MapPin, Plane, Radio, RefreshCw, ShieldCheck, Wind } from "lucide-react";
 import { EMPTY_LIVE_OPERATIONS_SNAPSHOT, getLiveOperationsSnapshot, type LiveOperationsSnapshot } from "@/lib/integrations/liveOperations";
 import { Badge, StatusDot } from "@/components/ui";
+
+const AviationMap = dynamic(() => import("@/components/dashboard/AviationMap"), { ssr: false, loading: () => <div className="h-[440px] animate-pulse rounded-2xl bg-white/[.04]" aria-label="Loading geographic map"/> });
 
 const corridor = { minLon: -85, maxLon: -78, minLat: 24.2, maxLat: 35.5 };
 
@@ -87,6 +90,8 @@ export function LiveOperationsConsole() {
           </div>
         </div>
       </section>
+
+      <section className="glass p-4 md:p-5"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-widest text-cyan">Geographic corridor picture</p><h3 className="mt-1 text-lg font-semibold">MIA · FLL · ATL live public context</h3></div><Badge tone="cyan">OpenStreetMap basemap</Badge></div><AviationMap aircraft={snapshot.aircraft}/><p className="mt-3 text-[9px] text-mist">Aircraft: OpenSky Network anonymous state vectors · Basemap © OpenStreetMap contributors. Positions refresh with the console every 60 seconds.</p></section>
 
       <section className="grid gap-4 md:grid-cols-3">
         {[

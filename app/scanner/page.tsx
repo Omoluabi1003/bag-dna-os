@@ -1,4 +1,1 @@
-import { AppShell } from "@/components/shell";
-import { CheckpointScanner } from "@/components/scanner/CheckpointScanner";
-export default function ScannerPage(){return <AppShell title="RFID / NFC Checkpoint Scanner" eyebrow="BAG-DNA protocol · Verify every movement"><CheckpointScanner/></AppShell>}
-
+import {AppShell} from "@/components/shell";import {CheckpointScanner} from "@/components/scanner/CheckpointScanner";export default function Page(){return <AppShell title="Checkpoint Scanner" eyebrow="Simulated hardware workflow · DEMO DATA"><p className="mb-5 rounded-xl border border-gold/20 bg-gold/5 p-3 text-xs text-mist">This interface simulates barcode, NFC and RFID verification. It is not connected to airport hardware.</p><CheckpointScanner/></AppShell>}

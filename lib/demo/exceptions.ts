@@ -1,0 +1,4 @@
+import { demoBags } from "./bags";
+export type DemoException = { id: string; bagId: string; category: string; severity: "Critical" | "High" | "Medium"; score: number; confidence: number; evidence: string; action: string; status: "Open" | "Assigned" | "Escalated" | "Resolved" };
+const categories = ["Identity mismatch", "Custody gap", "Seal discrepancy", "Route deviation", "Late transfer", "Duplicate scan"];
+export const demoExceptions: DemoException[] = Array.from({ length: 14 }, (_, i) => ({ id: `RISK-${1300 + i}`, bagId: demoBags[(i * 3 + 4) % demoBags.length].id, category: categories[i % categories.length], severity: i % 7 === 0 ? "Critical" : i % 3 === 0 ? "High" : "Medium", score: 58 + (i * 3) % 39, confidence: 82 + i % 16, evidence: `${2 + i % 4} corroborating demo custody signals`, action: ["Hold at transfer induction and inspect identity", "Reconcile prior custody actor", "Verify seal and capture supervisor attestation"][i % 3], status: "Open" }));

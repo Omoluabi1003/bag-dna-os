@@ -1,0 +1,3 @@
+import { demoBags } from "./bags";
+export type DemoClaim = { id: string; bagId: string; type: string; opened: string; flight: string; route: string; confidence: number; routeConsistent: boolean; seal: string; status: string };
+export const demoClaims: DemoClaim[] = Array.from({ length: 8 }, (_, i) => { const bag = demoBags[i * 4]; return { id: `CLM-2026-${700 + i}`, bagId: bag.id, type: i % 2 ? "Delayed delivery" : "Condition review", opened: `2026-07-${String(21 + i).padStart(2, "0")}`, flight: bag.flight, route: `${bag.origin} → ${bag.destination}`, confidence: 91 + i, routeConsistent: i !== 3, seal: bag.seal, status: i < 3 ? "Evidence ready" : "Under review" }; });

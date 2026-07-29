@@ -1,0 +1,1 @@
+import {AppShell} from "@/components/shell";import {ClaimEvidenceWorkspace} from "@/components/claims/ClaimEvidenceWorkspace";export default function Page(){return <AppShell title="Claims Evidence" eyebrow="Demonstration evidence workflow"><ClaimEvidenceWorkspace/></AppShell>}
