@@ -1,0 +1,48 @@
+name: Dependency Audit Fix
+
+on:
+  push:
+    branches:
+      - security/dependency-audit-fix
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Apply safe audit fixes
+        run: npm audit fix
+
+      - name: Validate
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run build
+          npm audit --audit-level=high
+
+      - name: Commit dependency updates
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No dependency changes were produced."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "fix: remediate high-severity npm vulnerabilities"
+          git push
