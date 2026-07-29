@@ -1,182 +1,313 @@
 "use client";
 
-import { Suspense, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Html, Line, OrbitControls, Stars, useTexture } from "@react-three/drei";
-import * as THREE from "three";
+import { useEffect, useRef, useState } from "react";
 import { demoAirports } from "@/lib/demo/airports";
 import type { AircraftTrack } from "@/lib/integrations/liveOperations";
 
 type Props = { aircraft?: AircraftTrack[] };
+type Point = { latitude: number; longitude: number };
+type Feature = { geometry?: { type: string; coordinates: unknown } };
+type FeatureCollection = { features?: Feature[] };
+type DragState = { active: boolean; x: number; y: number };
 
-type GeoPoint = { latitude: number; longitude: number };
+const LAND_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
+const TAU = Math.PI * 2;
+const DEG = Math.PI / 180;
 
-const EARTH_RADIUS = 2.25;
+function project(point: Point, cx: number, cy: number, radius: number, rx: number, ry: number) {
+  const lat = point.latitude * DEG;
+  const lng = point.longitude * DEG;
+  let x = Math.cos(lat) * Math.sin(lng);
+  let y = Math.sin(lat);
+  let z = Math.cos(lat) * Math.cos(lng);
 
-function latLngToVector3({ latitude, longitude }: GeoPoint, radius = EARTH_RADIUS) {
-  const phi = THREE.MathUtils.degToRad(90 - latitude);
-  const theta = THREE.MathUtils.degToRad(longitude + 180);
-  return new THREE.Vector3(
-    -radius * Math.sin(phi) * Math.cos(theta),
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta),
-  );
+  const cyaw = Math.cos(ry);
+  const syaw = Math.sin(ry);
+  [x, z] = [x * cyaw + z * syaw, -x * syaw + z * cyaw];
+
+  const cpitch = Math.cos(rx);
+  const spitch = Math.sin(rx);
+  [y, z] = [y * cpitch - z * spitch, y * spitch + z * cpitch];
+
+  return { x: cx + x * radius, y: cy - y * radius, depth: z, visible: z > -0.03 };
 }
 
-function arcPoints(start: GeoPoint, end: GeoPoint) {
-  const a = latLngToVector3(start, EARTH_RADIUS + 0.025);
-  const b = latLngToVector3(end, EARTH_RADIUS + 0.025);
-  const angle = a.angleTo(b);
-  const lift = Math.max(0.16, angle * 0.85);
-  return Array.from({ length: 72 }, (_, index) => {
-    const t = index / 71;
-    const point = a.clone().lerp(b, t).normalize();
-    const altitude = EARTH_RADIUS + Math.sin(Math.PI * t) * lift;
-    return point.multiplyScalar(altitude);
+function rings(feature: Feature): number[][][] {
+  const geometry = feature.geometry;
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") return geometry.coordinates as number[][][];
+  if (geometry.type === "MultiPolygon") return (geometry.coordinates as number[][][][]).flat();
+  return [];
+}
+
+function greatCircle(start: Point, end: Point, steps = 72): Point[] {
+  const aLat = start.latitude * DEG;
+  const aLng = start.longitude * DEG;
+  const bLat = end.latitude * DEG;
+  const bLng = end.longitude * DEG;
+  const a = [Math.cos(aLat) * Math.cos(aLng), Math.cos(aLat) * Math.sin(aLng), Math.sin(aLat)];
+  const b = [Math.cos(bLat) * Math.cos(bLng), Math.cos(bLat) * Math.sin(bLng), Math.sin(bLat)];
+  const omega = Math.acos(Math.min(1, Math.max(-1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])));
+  const divisor = Math.sin(omega) || 1;
+
+  return Array.from({ length: steps }, (_, index) => {
+    const t = index / (steps - 1);
+    const s0 = Math.sin((1 - t) * omega) / divisor;
+    const s1 = Math.sin(t * omega) / divisor;
+    const x = a[0] * s0 + b[0] * s1;
+    const y = a[1] * s0 + b[1] * s1;
+    const z = a[2] * s0 + b[2] * s1;
+    return { latitude: Math.atan2(z, Math.hypot(x, y)) / DEG, longitude: Math.atan2(y, x) / DEG };
   });
-}
-
-function Earth() {
-  const earth = useRef<THREE.Mesh>(null);
-  const clouds = useRef<THREE.Mesh>(null);
-  const [surface, normal, specular, cloudMap] = useTexture([
-    "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg",
-    "https://threejs.org/examples/textures/planets/earth_normal_2048.jpg",
-    "https://threejs.org/examples/textures/planets/earth_specular_2048.jpg",
-    "https://threejs.org/examples/textures/planets/earth_clouds_1024.png",
-  ]);
-
-  useFrame((_, delta) => {
-    if (earth.current) earth.current.rotation.y += delta * 0.018;
-    if (clouds.current) clouds.current.rotation.y += delta * 0.024;
-  });
-
-  return (
-    <group rotation={[0.08, -0.45, 0]}>
-      <mesh ref={earth} castShadow receiveShadow>
-        <sphereGeometry args={[EARTH_RADIUS, 96, 96]} />
-        <meshPhongMaterial
-          map={surface}
-          normalMap={normal}
-          specularMap={specular}
-          specular={new THREE.Color("#365a72")}
-          shininess={12}
-        />
-      </mesh>
-      <mesh ref={clouds}>
-        <sphereGeometry args={[EARTH_RADIUS + 0.018, 96, 96]} />
-        <meshPhongMaterial
-          map={cloudMap}
-          transparent
-          opacity={0.38}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[EARTH_RADIUS + 0.07, 96, 96]} />
-        <meshBasicMaterial
-          color="#4aa8ff"
-          transparent
-          opacity={0.075}
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-function AirportBeacon({ airport }: { airport: (typeof demoAirports)[number] }) {
-  const position = latLngToVector3(airport, EARTH_RADIUS + 0.045);
-  return (
-    <group position={position}>
-      <mesh>
-        <sphereGeometry args={[0.035, 18, 18]} />
-        <meshBasicMaterial color="#d7a84b" toneMapped={false} />
-      </mesh>
-      <mesh>
-        <ringGeometry args={[0.055, 0.085, 32]} />
-        <meshBasicMaterial color="#d7a84b" transparent opacity={0.55} side={THREE.DoubleSide} />
-      </mesh>
-      <Html center distanceFactor={7.5} style={{ pointerEvents: "none" }}>
-        <div className="rounded border border-[#d7a84b]/40 bg-[#071019]/90 px-2 py-1 text-[9px] font-semibold tracking-[0.16em] text-white shadow-xl backdrop-blur">
-          {airport.code}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function AircraftMarker({ track }: { track: AircraftTrack }) {
-  const position = latLngToVector3(track, EARTH_RADIUS + 0.075);
-  return (
-    <group position={position}>
-      <mesh rotation={[0, 0, THREE.MathUtils.degToRad(-track.heading)]}>
-        <coneGeometry args={[0.025, 0.1, 3]} />
-        <meshBasicMaterial color={track.onGround ? "#f6b94a" : "#27d3b7"} toneMapped={false} />
-      </mesh>
-    </group>
-  );
-}
-
-function GlobeScene({ aircraft = [] }: Props) {
-  const corridor = useMemo(
-    () => arcPoints(demoAirports[0], demoAirports[2]),
-    [],
-  );
-
-  return (
-    <>
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[5, 3, 5]} intensity={2.3} color="#d7ecff" />
-      <pointLight position={[-4, -1, -3]} intensity={0.55} color="#2b79ff" />
-      <Stars radius={70} depth={32} count={1600} factor={2.2} saturation={0.1} fade speed={0.35} />
-      <Suspense fallback={null}>
-        <Earth />
-      </Suspense>
-      <Line points={corridor} color="#d7a84b" lineWidth={1.6} transparent opacity={0.9} />
-      {demoAirports.map((airport) => <AirportBeacon key={airport.code} airport={airport} />)}
-      {aircraft.slice(0, 80).map((track) => <AircraftMarker key={track.icao24} track={track} />)}
-      <OrbitControls
-        enablePan={false}
-        minDistance={3.35}
-        maxDistance={7.4}
-        autoRotate
-        autoRotateSpeed={0.24}
-        dampingFactor={0.055}
-        enableDamping
-      />
-    </>
-  );
 }
 
 export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
-  return (
-    <div className="relative h-[540px] min-h-[440px] overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_50%_42%,#13283d_0%,#071019_54%,#02060b_100%)] shadow-[0_28px_90px_rgba(0,0,0,0.45)]">
-      <Canvas
-        dpr={[1, 1.7]}
-        camera={{ position: [0, 0.35, 5.3], fov: 42 }}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        aria-label="Interactive realistic aviation globe showing airports, corridor and live public aircraft positions"
-      >
-        <GlobeScene aircraft={aircraft} />
-      </Canvas>
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rotationRef = useRef({ x: -0.14, y: 1.35 });
+  const zoomRef = useRef(1);
+  const dragRef = useRef<DragState>({ active: false, x: 0, y: 0 });
+  const featuresRef = useRef<Feature[]>([]);
+  const aircraftRef = useRef<AircraftTrack[]>(aircraft);
+  const [landReady, setLandReady] = useState(false);
+  const [mode, setMode] = useState<"GLOBE" | "REGIONAL">("GLOBE");
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between p-4">
-        <div className="rounded-xl border border-white/10 bg-[#071019]/82 px-3 py-2 text-[10px] text-white shadow-2xl backdrop-blur-md">
-          <div className="font-semibold tracking-[0.16em] text-[#27d3b7]">LIVE AVIATION CONTEXT</div>
-          <div className="mt-1 text-white/60">OpenSky aircraft · realistic Earth · MIA–ATL corridor</div>
+  useEffect(() => {
+    aircraftRef.current = aircraft;
+  }, [aircraft]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(LAND_URL, { cache: "force-cache" })
+      .then((response) => {
+        if (!response.ok) throw new Error("boundaries unavailable");
+        return response.json() as Promise<FeatureCollection>;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        featuresRef.current = data.features ?? [];
+        setLandReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setLandReady(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d", { alpha: false });
+    if (!ctx) return;
+
+    const route = greatCircle(demoAirports[0], demoAirports[2]);
+    let animationFrame = 0;
+    let previous = performance.now();
+    let width = 0;
+    let height = 0;
+
+    const resize = () => {
+      const rect = container.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.8);
+      width = Math.max(320, rect.width);
+      height = Math.max(440, rect.height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    resize();
+    const observer = new ResizeObserver(resize);
+    observer.observe(container);
+
+    const render = (now: number) => {
+      const delta = Math.min(34, now - previous);
+      previous = now;
+      if (!dragRef.current.active && mode === "GLOBE") rotationRef.current.y += delta * 0.000025;
+
+      const cx = width * 0.5;
+      const cy = height * 0.53;
+      const baseRadius = Math.min(width * 0.37, height * 0.405);
+      const radius = baseRadius * zoomRef.current * (mode === "REGIONAL" ? 1.34 : 1);
+      const { x: rx, y: ry } = rotationRef.current;
+
+      const background = ctx.createRadialGradient(cx, cy * 0.84, 0, cx, cy, Math.max(width, height) * 0.78);
+      background.addColorStop(0, "#102b43");
+      background.addColorStop(0.48, "#06131f");
+      background.addColorStop(1, "#010407");
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.shadowColor = "rgba(42,143,255,.55)";
+      ctx.shadowBlur = radius * 0.17;
+      const ocean = ctx.createRadialGradient(cx - radius * 0.34, cy - radius * 0.42, radius * 0.08, cx, cy, radius);
+      ocean.addColorStop(0, "#1e5c88");
+      ocean.addColorStop(0.35, "#123f65");
+      ocean.addColorStop(1, "#020b15");
+      ctx.fillStyle = ocean;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.clip();
+      for (const feature of featuresRef.current) {
+        for (const ring of rings(feature)) {
+          ctx.beginPath();
+          let started = false;
+          let count = 0;
+          for (const coordinate of ring) {
+            const point = project({ longitude: coordinate[0], latitude: coordinate[1] }, cx, cy, radius, rx, ry);
+            if (!point.visible) { started = false; continue; }
+            count += 1;
+            if (!started) { ctx.moveTo(point.x, point.y); started = true; } else ctx.lineTo(point.x, point.y);
+          }
+          if (count < 3) continue;
+          ctx.closePath();
+          ctx.fillStyle = "rgba(38,91,77,.98)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(166,218,190,.32)";
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(215,168,75,.95)";
+      ctx.shadowColor = "rgba(215,168,75,.9)";
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([9, 7]);
+      ctx.lineDashOffset = -(now * 0.025) % 16;
+      ctx.beginPath();
+      let routeStarted = false;
+      for (const point of route) {
+        const projected = project(point, cx, cy, radius * 1.012, rx, ry);
+        if (!projected.visible) { routeStarted = false; continue; }
+        if (!routeStarted) { ctx.moveTo(projected.x, projected.y); routeStarted = true; } else ctx.lineTo(projected.x, projected.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      for (const airport of demoAirports) {
+        const point = project(airport, cx, cy, radius * 1.016, rx, ry);
+        if (!point.visible || point.depth < 0) continue;
+        ctx.fillStyle = "#f0c96e";
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 3.5, 0, TAU);
+        ctx.fill();
+        ctx.font = "600 10px ui-monospace, monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255,255,255,.92)";
+        ctx.fillText(airport.code, point.x, point.y - 13);
+      }
+
+      for (const track of aircraftRef.current.slice(0, 90)) {
+        const point = project(track, cx, cy, radius * 1.022, rx, ry);
+        if (!point.visible || point.depth < 0.08) continue;
+        ctx.save();
+        ctx.translate(point.x, point.y);
+        ctx.rotate(((track.heading ?? 0) - 90) * DEG);
+        ctx.fillStyle = track.onGround ? "#f6b94a" : "#27d3b7";
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(-4, -2.8);
+        ctx.lineTo(-2.5, 0);
+        ctx.lineTo(-4, 2.8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.strokeStyle = "rgba(130,207,255,.35)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.stroke();
+
+      animationFrame = requestAnimationFrame(render);
+    };
+
+    animationFrame = requestAnimationFrame(render);
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      observer.disconnect();
+    };
+  }, [mode]);
+
+  const focusCorridor = () => {
+    const routeMidpoint = greatCircle(demoAirports[0], demoAirports[2], 3)[1];
+    rotationRef.current = {
+      x: routeMidpoint.latitude * DEG,
+      y: -routeMidpoint.longitude * DEG,
+    };
+    zoomRef.current = 1.08;
+    setMode("REGIONAL");
+  };
+
+  const resetGlobe = () => {
+    rotationRef.current = { x: -0.14, y: 1.35 };
+    zoomRef.current = 1;
+    setMode("GLOBE");
+  };
+
+  return (
+    <div ref={containerRef} className="relative h-[560px] min-h-[460px] overflow-hidden rounded-2xl border border-white/10 bg-[#010407] shadow-[0_30px_100px_rgba(0,0,0,.55)]">
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full cursor-grab touch-none active:cursor-grabbing"
+        aria-label="Interactive BAG-DNA aviation intelligence globe"
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          dragRef.current = { active: true, x: event.clientX, y: event.clientY };
+        }}
+        onPointerMove={(event) => {
+          const drag = dragRef.current;
+          if (!drag.active) return;
+          rotationRef.current.y += (event.clientX - drag.x) * 0.006;
+          rotationRef.current.x = Math.max(-1.25, Math.min(1.25, rotationRef.current.x + (event.clientY - drag.y) * 0.004));
+          dragRef.current = { active: true, x: event.clientX, y: event.clientY };
+        }}
+        onPointerUp={() => { dragRef.current.active = false; }}
+        onPointerCancel={() => { dragRef.current.active = false; }}
+        onWheel={(event) => {
+          event.preventDefault();
+          zoomRef.current = Math.max(0.76, Math.min(1.55, zoomRef.current - event.deltaY * 0.0007));
+        }}
+      />
+
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+        <div className="rounded-xl border border-white/10 bg-[#05111c]/88 px-3 py-2 text-[10px] text-white shadow-2xl backdrop-blur-md">
+          <div className="font-semibold tracking-[0.17em] text-[#27d3b7]">BAG-DNA GEOSPATIAL ENGINE</div>
+          <div className="mt-1 text-white/58">Natural Earth boundaries · live OpenSky tracks · atmospheric context</div>
         </div>
-        <div className="rounded-xl border border-white/10 bg-[#071019]/82 px-3 py-2 text-right text-[10px] shadow-2xl backdrop-blur-md">
-          <div className="font-mono text-white">{aircraft.length.toLocaleString()} TRACKS</div>
-          <div className="mt-1 text-white/50">Drag to rotate · scroll to zoom</div>
+        <div className="rounded-xl border border-white/10 bg-[#05111c]/88 px-3 py-2 text-right text-[10px] shadow-2xl backdrop-blur-md">
+          <div className="font-mono text-white">{aircraft.length.toLocaleString()} LIVE TRACKS</div>
+          <div className="mt-1 text-white/50">{landReady ? "GEOMETRY ONLINE" : "GEOMETRY LOADING"}</div>
         </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-4 left-4 rounded-xl border border-[#d7a84b]/25 bg-[#071019]/88 px-3 py-2 text-[10px] shadow-2xl backdrop-blur-md">
-        <div className="font-semibold tracking-[0.14em] text-[#d7a84b]">BAG-DNA JOURNEY CORRIDOR</div>
-        <div className="mt-1 text-white/65">MIA → ATL · DEMO BAG DATA · PUBLIC AVIATION CONTEXT</div>
+      <div className="absolute bottom-4 left-4 flex items-end gap-2">
+        <div className="pointer-events-none rounded-xl border border-[#d7a84b]/25 bg-[#05111c]/90 px-3 py-2 text-[10px] shadow-2xl backdrop-blur-md">
+          <div className="font-semibold tracking-[0.14em] text-[#d7a84b]">ACTIVE BAG JOURNEY</div>
+          <div className="mt-1 text-white/65">MIA → ATL · DEMO BAG DATA · LIVE AVIATION CONTEXT</div>
+        </div>
+        <div className="flex gap-1 rounded-xl border border-white/10 bg-[#05111c]/90 p-1 shadow-2xl backdrop-blur-md">
+          <button type="button" onClick={resetGlobe} className={`rounded-lg px-3 py-2 text-[9px] font-semibold tracking-[.12em] transition ${mode === "GLOBE" ? "bg-white/12 text-white" : "text-white/50 hover:text-white"}`}>GLOBE</button>
+          <button type="button" onClick={focusCorridor} className={`rounded-lg px-3 py-2 text-[9px] font-semibold tracking-[.12em] transition ${mode === "REGIONAL" ? "bg-[#d7a84b]/18 text-[#f0c96e]" : "text-white/50 hover:text-white"}`}>CORRIDOR</button>
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-4 right-4 rounded-lg border border-white/8 bg-black/30 px-2.5 py-1.5 text-[9px] text-white/45 backdrop-blur-sm">
+        Drag to rotate · scroll to zoom
       </div>
     </div>
   );
