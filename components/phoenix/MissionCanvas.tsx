@@ -4,15 +4,15 @@ import dynamic from "next/dynamic";
 import { CloudRain, MapPin, Navigation } from "lucide-react";
 import type { ReplayEvent } from "@/types/phoenix";
 
-const WaveAtlasAviationMap = dynamic(
-  () => import("@/components/dashboard/WaveAtlasAviationMap"),
+const MissionControlGeospatialEngine = dynamic(
+  () => import("@/components/dashboard/MissionControlGeospatialEngine"),
   {
     ssr: false,
     loading: () => (
       <div className="grid h-full w-full place-items-center bg-[#02070d]">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-[#d7a84b]" />
-          <p className="mt-3 text-[8px] font-semibold tracking-[.16em] text-white/45">INITIALIZING MISSION MAP</p>
+          <p className="mt-3 text-[8px] font-semibold tracking-[.16em] text-white/45">INITIALIZING GEOSPATIAL ENGINE</p>
         </div>
       </div>
     ),
@@ -23,13 +23,13 @@ export function MissionCanvas({ event, index, total }: { event: ReplayEvent; ind
   const progress = total > 1 ? Math.round((index / (total - 1)) * 100) : 0;
 
   return (
-    <section className="mission-canvas" aria-label="WaveAtlas aviation corridor map">
-      <div className="absolute inset-0 [&>div]:!h-full [&>div]:!min-h-0 [&>div]:!rounded-none [&>div]:!border-0">
-        <WaveAtlasAviationMap />
+    <section className="mission-canvas" aria-label="BAG-DNA Mission Control operational map">
+      <div className="absolute inset-0">
+        <MissionControlGeospatialEngine />
       </div>
 
       <div className="map-toolbar">
-        <span><Navigation /> MIA / ATL CORRIDOR · WAVEATLAS MAP</span>
+        <span><Navigation /> MIA → ATL OPERATIONAL VIEW</span>
         <span><CloudRain /> ATL · 27°C · VIS 10 mi</span>
       </div>
 
@@ -42,7 +42,7 @@ export function MissionCanvas({ event, index, total }: { event: ReplayEvent; ind
         </div>
       </div>
 
-      <div className="map-coordinates">33.6407°N / 84.4277°W<br />WAVEATLAS CONTEXT · DEMO OVERLAY</div>
+      <div className="map-coordinates">33.6407°N / 84.4277°W<br />BAG-DNA OPERATIONAL CONTEXT · DEMO OVERLAY</div>
       <div className="map-focus"><span><MapPin /> CURRENT ZONE</span><b>{event.airport} · {event.zone}</b><small>{event.holder} · Scan confidence {event.confidence}%</small></div>
       <div className="map-legend"><span><i className="verified" />Verified path</span><span><i className="missing" />Missing event</span><span><i className="untrusted" />Untrusted signal</span></div>
     </section>
