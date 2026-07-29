@@ -62,6 +62,35 @@ function project(point: GeoPoint, width: number, height: number, view: ViewState
   };
 }
 
+// Natural Earth rings must retain their source longitude. Wrapping a country
+// around the camera can pull an otherwise offscreen polygon across the canvas.
+function projectLandPoint(point: GeoPoint, width: number, height: number, view: ViewState) {
+  const scale = (256 * 2 ** view.zoom) / TAU;
+  return {
+    x: width / 2 + (point.longitude - view.centerLon) * DEG * scale,
+    y: height / 2 - (mercatorY(point.latitude) - mercatorY(view.centerLat)) * scale,
+  };
+}
+
+function fitBounds(start: GeoPoint, end: GeoPoint, width: number, height: number, padding: number): ViewState {
+  const minLon = Math.min(start.longitude, end.longitude);
+  const maxLon = Math.max(start.longitude, end.longitude);
+  const minLat = Math.min(start.latitude, end.latitude);
+  const maxLat = Math.max(start.latitude, end.latitude);
+  const centerLon = (minLon + maxLon) / 2;
+  const centerLat = (minLat + maxLat) / 2;
+  const availableWidth = Math.max(1, width - padding * 2);
+  const availableHeight = Math.max(1, height - padding * 2);
+  const longitudeSpan = Math.max(0.001, (maxLon - minLon) * DEG);
+  const centerY = mercatorY(centerLat);
+  const latitudeSpan = Math.max(
+    0.001,
+    2 * Math.max(Math.abs(mercatorY(minLat) - centerY), Math.abs(mercatorY(maxLat) - centerY)),
+  );
+  const scale = Math.min(availableWidth / longitudeSpan, availableHeight / latitudeSpan);
+  return { centerLon, centerLat, zoom: Math.log2((scale * TAU) / 256) };
+}
+
 function drawBackground(ctx: CanvasRenderingContext2D, width: number, height: number) {
   const gradient = ctx.createRadialGradient(width * 0.52, height * 0.42, 0, width * 0.52, height * 0.45, Math.max(width, height) * 0.85);
   gradient.addColorStop(0, "#15334b");
@@ -77,6 +106,9 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
   const featuresRef = useRef<Feature[]>([]);
   const aircraftRef = useRef(aircraft);
   const viewRef = useRef<ViewState>({ centerLon: -82.55, centerLat: 29.8, zoom: 4.35 });
+  const activeViewRef = useRef<"operational" | "global">("operational");
+  const operationalFitRef = useRef(false);
+  const sizeRef = useRef({ width: 1, height: 1 });
   const dragRef = useRef<DragState>({ active: false, x: 0, y: 0 });
   const [geometryState, setGeometryState] = useState<"loading" | "online" | "degraded">("loading");
   const [activeView, setActiveView] = useState<"operational" | "global">("operational");
@@ -111,13 +143,18 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
     const resize = () => {
       const rect = container.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 1.8);
-      width = Math.max(320, rect.width);
-      height = Math.max(320, rect.height);
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      sizeRef.current = { width, height };
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (activeViewRef.current === "operational" && !operationalFitRef.current && rect.width > 0 && rect.height > 0) {
+        viewRef.current = fitBounds(ROUTE_START, ROUTE_END, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+        operationalFitRef.current = true;
+      }
     };
 
     resize();
@@ -150,19 +187,36 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
       ctx.save();
       for (const feature of featuresRef.current) {
         for (const ring of rings(feature)) {
-          ctx.beginPath();
-          let started = false;
-          for (const coordinate of ring) {
-            const point = project({ longitude: coordinate[0], latitude: coordinate[1] }, width, height, view);
-            if (!started) { ctx.moveTo(point.x, point.y); started = true; } else ctx.lineTo(point.x, point.y);
+          const points = ring.map((coordinate) => projectLandPoint(
+            { longitude: coordinate[0], latitude: coordinate[1] }, width, height, view,
+          )).filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+          if (points.length < 3) continue;
+          const xs = points.map((point) => point.x);
+          const ys = points.map((point) => point.y);
+          if (Math.max(...xs) < 0 || Math.min(...xs) > width || Math.max(...ys) < 0 || Math.min(...ys) > height) continue;
+
+          const subpaths: typeof points[] = [];
+          let subpath: typeof points = [];
+          for (const point of points) {
+            if (subpath.length && Math.abs(point.x - subpath[subpath.length - 1].x) > width / 2) {
+              if (subpath.length >= 3) subpaths.push(subpath);
+              subpath = [];
+            }
+            subpath.push(point);
           }
-          if (!started) continue;
-          ctx.closePath();
-          ctx.fillStyle = "rgba(27,73,66,.96)";
-          ctx.fill();
-          ctx.strokeStyle = "rgba(140,215,190,.28)";
-          ctx.lineWidth = 0.75;
-          ctx.stroke();
+          if (subpath.length >= 3) subpaths.push(subpath);
+          for (const path of subpaths) {
+            if (Math.abs(path[0].x - path[path.length - 1].x) > width / 2) continue;
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (const point of path.slice(1)) ctx.lineTo(point.x, point.y);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(27,73,66,.96)";
+            ctx.fill();
+            ctx.strokeStyle = "rgba(140,215,190,.28)";
+            ctx.lineWidth = 0.75;
+            ctx.stroke();
+          }
         }
       }
       ctx.restore();
@@ -219,16 +273,23 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
   }, []);
 
   const resetCorridor = () => {
-    viewRef.current = { centerLon: -82.55, centerLat: 29.8, zoom: 4.35 };
+    const { width, height } = sizeRef.current;
+    viewRef.current = fitBounds(ROUTE_START, ROUTE_END, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+    activeViewRef.current = "operational";
+    operationalFitRef.current = true;
     setActiveView("operational");
   };
   const showWorld = () => {
-    viewRef.current = { centerLon: -20, centerLat: 18, zoom: 1.45 };
+    const { width, height } = sizeRef.current;
+    viewRef.current = fitBounds(
+      { longitude: -180, latitude: -72 }, { longitude: 180, latitude: 78 }, width, height, 24,
+    );
+    activeViewRef.current = "global";
     setActiveView("global");
   };
 
   return (
-    <div ref={containerRef} className="relative h-full min-h-[320px] overflow-hidden bg-[#02070d]">
+    <div ref={containerRef} className="absolute inset-0 h-full w-full overflow-hidden bg-[#02070d]">
       <canvas
         ref={canvasRef}
         className="h-full w-full cursor-grab touch-none active:cursor-grabbing"
