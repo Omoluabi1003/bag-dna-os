@@ -1,0 +1,2 @@
+import { PhoenixShell } from "@/components/phoenix/PhoenixShell"; import { PhoenixMissionControl } from "@/components/phoenix/PhoenixMissionControl";
+export default function SimulationPage(){return <PhoenixShell><div className="simulation-banner"><b>SIMULATION LAB · DEMO DATA</b><span>Journey disruption playback / Missing Arrival Scan Investigation</span></div><PhoenixMissionControl/></PhoenixShell>}

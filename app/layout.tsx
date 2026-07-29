@@ -8,11 +8,11 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "BAG-DNA OS™ | Aviation Baggage Intelligence",
+    default: "BAG-DNA OS | Project Phoenix Mission Control",
     template: "%s | BAG-DNA OS™",
   },
   description:
-    "Global digital baggage identity and chain-of-custody intelligence platform designed for ICAO-aligned aviation review.",
+    "The Operating System for Global Baggage Intelligence — an operational Project Phoenix demonstration environment.",
   applicationName: "BAG-DNA OS",
   alternates: { canonical: "/" },
   keywords: ["aviation baggage intelligence", "digital baggage identity", "ICAO alignment", "airport GIS", "chain of custody"],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: "BAG-DNA OS™",
     title: "BAG-DNA OS™",
-    description: "The ICAO-aligned digital identity layer for every checked bag.",
+    description: "The Operating System for Global Baggage Intelligence.",
     images: [
       {
         url: socialImageUrl,
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "BAG-DNA OS™",
-    description: "The ICAO-aligned digital identity layer for every checked bag.",
+    description: "The Operating System for Global Baggage Intelligence.",
     images: [socialImageUrl],
   },
   robots: { index: true, follow: true },
