@@ -1,20 +1,50 @@
-import { CloudRain, MapPin, Navigation, Plane } from "lucide-react";
+"use client";
+
+import dynamic from "next/dynamic";
+import { CloudRain, MapPin, Navigation } from "lucide-react";
 import type { ReplayEvent } from "@/types/phoenix";
 
-export function MissionCanvas({event,index,total}:{event:ReplayEvent;index:number;total:number}) {
-  const progress=index/(total-1)*100;
-  return <section className="mission-canvas" aria-label="Aviation corridor map">
-    <div className="map-toolbar"><span><Navigation/> MIA / ATL CORRIDOR</span><span><CloudRain/> ATL · 27°C · VIS 10 mi</span></div>
-    <div className="map-coordinates">33.6407°N / 84.4277°W<br/>OSM CONTEXT · DEMO OVERLAY</div>
-    <svg className="corridor-map" viewBox="0 0 1000 500" role="img" aria-label={`Journey progress at ${event.zone}`}>
-      <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#264052" strokeWidth=".6"/></pattern><linearGradient id="route"><stop stopColor="#00d6a3"/><stop offset="1" stopColor="#4ba3ff"/></linearGradient></defs>
-      <rect width="1000" height="500" fill="url(#grid)"/><path className="land-mass" d="M-30 335L83 285l96 15 74-66 87 25 91-66 103 34 75-31 99 56 96-9 92 59 134 8v220H-30z"/>
-      <path d="M130 338C300 155 600 155 865 270" className="route-base"/><path d="M130 338C300 155 600 155 865 270" className="route-progress" pathLength="100" strokeDasharray={`${progress} 100`}/>
-      <circle cx="130" cy="338" r="8" className="airport-dot"/><circle cx="865" cy="270" r="8" className="airport-dot"/><text x="98" y="375">MIA · ORIGIN</text><text x="824" y="307">ATL · ARRIVED</text>
-      <g style={{transform:`translate(${130+(865-130)*progress/100}px, ${338+(270-338)*progress/100}px)`}} className="bag-marker"><circle r="17"/><circle r="5"/><text x="24" y="4">{event.state}</text></g>
-      <g className="aircraft" transform="translate(580 155) rotate(15)"><Plane/><text x="28" y="4">BDO 2174</text></g>
-    </svg>
-    <div className="map-focus"><span><MapPin/> CURRENT ZONE</span><b>{event.airport} · {event.zone}</b><small>{event.holder} · Scan confidence {event.confidence}%</small></div>
-    <div className="map-legend"><span><i className="verified"/>Verified path</span><span><i className="missing"/>Missing event</span><span><i className="untrusted"/>Untrusted signal</span></div>
-  </section>;
+const WaveAtlasAviationMap = dynamic(
+  () => import("@/components/dashboard/WaveAtlasAviationMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid h-full w-full place-items-center bg-[#02070d]">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-[#d7a84b]" />
+          <p className="mt-3 text-[8px] font-semibold tracking-[.16em] text-white/45">INITIALIZING MISSION MAP</p>
+        </div>
+      </div>
+    ),
+  },
+);
+
+export function MissionCanvas({ event, index, total }: { event: ReplayEvent; index: number; total: number }) {
+  const progress = total > 1 ? Math.round((index / (total - 1)) * 100) : 0;
+
+  return (
+    <section className="mission-canvas" aria-label="WaveAtlas aviation corridor map">
+      <div className="absolute inset-0 [&>div]:!h-full [&>div]:!min-h-0 [&>div]:!rounded-none [&>div]:!border-0">
+        <WaveAtlasAviationMap />
+      </div>
+
+      <div className="map-toolbar">
+        <span><Navigation /> MIA / ATL CORRIDOR · WAVEATLAS MAP</span>
+        <span><CloudRain /> ATL · 27°C · VIS 10 mi</span>
+      </div>
+
+      <div className="pointer-events-none absolute left-1/2 top-12 z-20 w-48 -translate-x-1/2 rounded-md border border-white/10 bg-[#071019]/88 px-3 py-2 shadow-xl backdrop-blur-md">
+        <div className="flex items-center justify-between text-[7px] tracking-[.1em] text-white/55">
+          <span>JOURNEY REPLAY</span><b className="text-[#27d3b7]">{progress}%</b>
+        </div>
+        <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full bg-[#27d3b7] transition-[width] duration-500" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <div className="map-coordinates">33.6407°N / 84.4277°W<br />WAVEATLAS CONTEXT · DEMO OVERLAY</div>
+      <div className="map-focus"><span><MapPin /> CURRENT ZONE</span><b>{event.airport} · {event.zone}</b><small>{event.holder} · Scan confidence {event.confidence}%</small></div>
+      <div className="map-legend"><span><i className="verified" />Verified path</span><span><i className="missing" />Missing event</span><span><i className="untrusted" />Untrusted signal</span></div>
+    </section>
+  );
 }
