@@ -8,8 +8,9 @@ import { Logo } from "./logo";
 import { BackButton } from "./ui/BackButton";
 import { NotificationAlertCenter } from "./notifications/NotificationAlertCenter";
 import { navItems } from "@/lib/data";
+import { PhoenixShell } from "./phoenix/PhoenixShell";
 
-export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlanta International" }: {
+export function LegacyAppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlanta International" }: {
   children: React.ReactNode; title: string; eyebrow?: string;
 }) {
   const pathname = usePathname();
@@ -73,4 +74,8 @@ export function AppShell({ children, title, eyebrow = "Hartsfield-Jackson Atlant
       {palette&&<div className="fixed inset-0 z-[80] bg-black/70 p-4 pt-[15vh]" onClick={()=>setPalette(false)}><section role="dialog" aria-modal="true" aria-label="Global operations search" onClick={e=>e.stopPropagation()} className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#0a1928] shadow-2xl"><label className="flex items-center gap-3 border-b border-white/10 p-4"><Search className="text-cyan"/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="Bag ID, flight, passenger ref, seal ID or event ID" className="w-full bg-transparent text-sm outline-none"/><kbd className="text-[10px] text-mist">ESC</kbd></label><div className="max-h-80 overflow-y-auto p-2">{navItems.filter(x=>x.label.toLowerCase().includes(query.toLowerCase())).slice(0,8).map(x=><Link onClick={()=>setPalette(false)} className="block rounded-xl p-3 text-sm hover:bg-white/5" href={x.href} key={x.href}>{x.label}<span className="ml-3 text-[10px] text-mist">{x.href}</span></Link>)}{query&&<Link onClick={()=>setPalette(false)} href={`/registry`} className="block rounded-xl bg-cyan/10 p-3 text-sm text-cyan">Search Bag Registry for “{query}”</Link>}</div></section></div>}
     </div>
   );
+}
+
+export function AppShell({ children }: { children: React.ReactNode; title: string; eyebrow?: string }) {
+  return <PhoenixShell>{children}</PhoenixShell>;
 }
