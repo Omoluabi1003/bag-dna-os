@@ -246,9 +246,9 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
         <div className={`mt-1 ${geometryState === "degraded" ? "text-amber-300" : "text-white/50"}`}>{geometryState === "online" ? "OPERATIONAL GEOMETRY ONLINE" : geometryState === "degraded" ? "OPERATIONAL GEOMETRY DEGRADED" : "LOADING OPERATIONAL GEOMETRY"}</div>
       </div>
 
-      <div className="absolute bottom-3 right-3 flex gap-1 rounded-lg border border-white/10 bg-[#04111d]/90 p-1 shadow-2xl backdrop-blur-md">
-        <button type="button" onClick={resetCorridor} className="rounded-md bg-[#d7a84b]/18 px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] text-[#f0c96e]">CORRIDOR</button>
-        <button type="button" onClick={showWorld} className="rounded-md px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] text-white/55 hover:text-white">GLOBAL</button>
+      <div className="absolute bottom-3 left-3 z-10 flex gap-1 rounded-lg border border-white/10 bg-[#04111d]/90 p-1 shadow-2xl backdrop-blur-md">
+        <button type="button" onClick={resetCorridor} className="rounded-md bg-[#d7a84b]/18 px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] text-[#f0c96e]">OPERATIONAL VIEW</button>
+        <button type="button" onClick={showWorld} className="rounded-md px-2.5 py-1.5 text-[8px] font-semibold tracking-[.12em] text-white/55 hover:text-white">GLOBAL VIEW</button>
       </div>
     </div>
   );
