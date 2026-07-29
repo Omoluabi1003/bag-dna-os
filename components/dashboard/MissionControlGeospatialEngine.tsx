@@ -2,16 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { demoAirports } from "@/lib/demo/airports";
+import { countyLabels, placeLabels, stateLabels, type MapLabel } from "@/lib/geospatialLabels";
 import type { AircraftTrack } from "@/lib/integrations/liveOperations";
 
 type Props = { aircraft?: AircraftTrack[] };
 type GeoPoint = { latitude: number; longitude: number };
-type Feature = { geometry?: { type: string; coordinates: unknown } };
+type Feature = { properties?: Record<string, unknown>; geometry?: { type: string; coordinates: unknown } };
 type FeatureCollection = { features?: Feature[] };
 type ViewState = { centerLon: number; centerLat: number; zoom: number };
 type DragState = { active: boolean; x: number; y: number };
 
 const LAND_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
+const STATE_URL = "/geo/us-states.geojson";
+const COUNTY_URLS = ["/geo/florida-counties.geojson", "/geo/georgia-counties.geojson"];
 const TAU = Math.PI * 2;
 const DEG = Math.PI / 180;
 const ROUTE_START = demoAirports[0];
@@ -100,31 +103,107 @@ function drawBackground(ctx: CanvasRenderingContext2D, width: number, height: nu
   ctx.fillRect(0, 0, width, height);
 }
 
+type Rect = { left: number; top: number; right: number; bottom: number };
+const overlaps = (a: Rect, b: Rect) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+
+function visibleFeature(feature: Feature, width: number, height: number, view: ViewState) {
+  return rings(feature).some((ring) => ring.some(([longitude, latitude]) => {
+    const point = projectLandPoint({ longitude, latitude }, width, height, view);
+    return point.x > -80 && point.x < width + 80 && point.y > -80 && point.y < height + 80;
+  }));
+}
+
+function traceGeometry(
+  ctx: CanvasRenderingContext2D,
+  feature: Feature,
+  width: number,
+  height: number,
+  view: ViewState,
+  close: boolean,
+) {
+  let traced = false;
+  for (const ring of rings(feature)) {
+    const points = ring.map(([longitude, latitude]) => projectLandPoint({ longitude, latitude }, width, height, view));
+    if (points.length < 2) continue;
+    const xs = points.map(({ x }) => x);
+    const ys = points.map(({ y }) => y);
+    if (Math.max(...xs) < -2 || Math.min(...xs) > width + 2 || Math.max(...ys) < -2 || Math.min(...ys) > height + 2) continue;
+    let started = false;
+    for (let index = 0; index < points.length; index += 1) {
+      const point = points[index];
+      const previous = points[index - 1];
+      if (!Number.isFinite(point.x) || !Number.isFinite(point.y) || (previous && Math.abs(point.x - previous.x) > width / 2)) {
+        started = false;
+        continue;
+      }
+      if (!started) { ctx.moveTo(point.x, point.y); started = true; traced = true; }
+      else ctx.lineTo(point.x, point.y);
+    }
+    if (close && started && Math.abs(points[0].x - points.at(-1)!.x) <= width / 2) ctx.closePath();
+  }
+  return traced;
+}
+
+function drawLabels(
+  ctx: CanvasRenderingContext2D,
+  labels: MapLabel[],
+  occupied: Rect[],
+  width: number,
+  height: number,
+  view: ViewState,
+  options: { abbreviation?: boolean; font: string; color: string; offsetY?: number },
+) {
+  ctx.save();
+  ctx.font = options.font;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = options.color;
+  for (const label of [...labels].sort((a, b) => b.priority - a.priority)) {
+    const point = project(label, width, height, view);
+    const text = options.abbreviation ? label.abbreviation ?? label.name : label.name;
+    const y = point.y + (options.offsetY ?? 0);
+    const textWidth = ctx.measureText(text).width;
+    const box = { left: point.x - textWidth / 2 - 4, right: point.x + textWidth / 2 + 4, top: y - 7, bottom: y + 7 };
+    if (box.left < 4 || box.right > width - 4 || box.top < 4 || box.bottom > height - 4 || occupied.some((item) => overlaps(box, item))) continue;
+    ctx.fillText(text, point.x, y);
+    occupied.push(box);
+  }
+  ctx.restore();
+}
+
 export default function MissionControlGeospatialEngine({ aircraft = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<Feature[]>([]);
+  const countryFeaturesRef = useRef<Feature[]>([]);
+  const stateFeaturesRef = useRef<Feature[]>([]);
+  const countyFeaturesRef = useRef<Feature[]>([]);
   const aircraftRef = useRef(aircraft);
   const viewRef = useRef<ViewState>({ centerLon: -82.55, centerLat: 29.8, zoom: 4.35 });
   const activeViewRef = useRef<"operational" | "global">("operational");
   const operationalFitRef = useRef(false);
   const sizeRef = useRef({ width: 1, height: 1 });
   const dragRef = useRef<DragState>({ active: false, x: 0, y: 0 });
-  const [geometryState, setGeometryState] = useState<"loading" | "online" | "degraded">("loading");
+  const [geometryState, setGeometryState] = useState({ country: "loading", state: "loading", county: "loading" });
   const [activeView, setActiveView] = useState<"operational" | "global">("operational");
 
   useEffect(() => { aircraftRef.current = aircraft; }, [aircraft]);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(LAND_URL, { cache: "force-cache" })
-      .then((response) => response.ok ? response.json() as Promise<FeatureCollection> : Promise.reject(new Error("boundaries unavailable")))
-      .then((data) => {
+    const load = (key: "country" | "state" | "county", urls: string[], target: { current: Feature[] }) => {
+      Promise.all(urls.map((url) => fetch(url, { cache: "force-cache" }).then((response) =>
+        response.ok ? response.json() as Promise<FeatureCollection> : Promise.reject(new Error(`${key} boundaries unavailable`)),
+      ))).then((collections) => {
         if (cancelled) return;
-        featuresRef.current = data.features ?? [];
-        setGeometryState("online");
-      })
-      .catch(() => { if (!cancelled) setGeometryState("degraded"); });
+        target.current = collections.flatMap((collection) => collection.features ?? []);
+        setGeometryState((current) => ({ ...current, [key]: "online" }));
+      }).catch(() => {
+        if (!cancelled) setGeometryState((current) => ({ ...current, [key]: "degraded" }));
+      });
+    };
+    load("country", [LAND_URL], countryFeaturesRef);
+    load("state", [STATE_URL], stateFeaturesRef);
+    load("county", COUNTY_URLS, countyFeaturesRef);
     return () => { cancelled = true; };
   }, []);
 
@@ -184,42 +263,76 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
       }
       ctx.restore();
 
+      // Country land fill pass.
       ctx.save();
-      for (const feature of featuresRef.current) {
-        for (const ring of rings(feature)) {
-          const points = ring.map((coordinate) => projectLandPoint(
-            { longitude: coordinate[0], latitude: coordinate[1] }, width, height, view,
-          )).filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
-          if (points.length < 3) continue;
-          const xs = points.map((point) => point.x);
-          const ys = points.map((point) => point.y);
-          if (Math.max(...xs) < 0 || Math.min(...xs) > width || Math.max(...ys) < 0 || Math.min(...ys) > height) continue;
+      ctx.beginPath();
+      for (const feature of countryFeaturesRef.current) traceGeometry(ctx, feature, width, height, view, true);
+      ctx.fillStyle = "rgba(27,73,66,.96)";
+      ctx.fill();
+      ctx.restore();
 
-          const subpaths: typeof points[] = [];
-          let subpath: typeof points = [];
-          for (const point of points) {
-            if (subpath.length && Math.abs(point.x - subpath[subpath.length - 1].x) > width / 2) {
-              if (subpath.length >= 3) subpaths.push(subpath);
-              subpath = [];
-            }
-            subpath.push(point);
-          }
-          if (subpath.length >= 3) subpaths.push(subpath);
-          for (const path of subpaths) {
-            if (Math.abs(path[0].x - path[path.length - 1].x) > width / 2) continue;
-            ctx.beginPath();
-            ctx.moveTo(path[0].x, path[0].y);
-            for (const point of path.slice(1)) ctx.lineTo(point.x, point.y);
-            ctx.closePath();
-            ctx.fillStyle = "rgba(27,73,66,.96)";
-            ctx.fill();
-            ctx.strokeStyle = "rgba(140,215,190,.28)";
-            ctx.lineWidth = 0.75;
-            ctx.stroke();
+      // Country border pass.
+      ctx.save();
+      ctx.beginPath();
+      for (const feature of countryFeaturesRef.current) traceGeometry(ctx, feature, width, height, view, true);
+      ctx.strokeStyle = "rgba(140,215,190,.28)";
+      ctx.lineWidth = 0.75;
+      ctx.stroke();
+      ctx.restore();
+
+      // State and county boundary passes. Administrative geometry is never filled.
+      if (view.zoom >= 4.7) {
+        ctx.save();
+        ctx.beginPath();
+        for (const feature of stateFeaturesRef.current) {
+          if (visibleFeature(feature, width, height, view)) traceGeometry(ctx, feature, width, height, view, true);
+        }
+        ctx.strokeStyle = "rgba(148,211,204,.58)";
+        ctx.lineWidth = 1.05;
+        ctx.stroke();
+        ctx.restore();
+      }
+      if (view.zoom >= 6.25) {
+        ctx.save();
+        ctx.beginPath();
+        for (const feature of countyFeaturesRef.current) {
+          const stateFips = String(feature.properties?.STATE ?? "");
+          if ((stateFips === "12" || stateFips === "13") && visibleFeature(feature, width, height, view)) {
+            traceGeometry(ctx, feature, width, height, view, true);
           }
         }
+        ctx.strokeStyle = "rgba(150,190,190,.24)";
+        ctx.lineWidth = 0.65;
+        ctx.stroke();
+        ctx.restore();
       }
-      ctx.restore();
+
+      // Label pass reserves HUDs, route, and airport symbols before placing lower-priority geography.
+      const occupied: Rect[] = [
+        { left: 0, top: 0, right: width, bottom: 43 },
+        { left: Math.max(0, width - 245), top: 0, right: width, bottom: 82 },
+        { left: 0, top: height - 48, right: 245, bottom: height },
+        { left: Math.max(0, width - 180), top: height - 45, right: width, bottom: height },
+      ];
+      for (const airport of demoAirports) {
+        const point = project(airport, width, height, view);
+        occupied.push({ left: point.x - 24, right: point.x + 24, top: point.y - 28, bottom: point.y + 12 });
+      }
+      for (const item of route.filter((_, index) => index % 5 === 0)) {
+        const point = project(item, width, height, view);
+        occupied.push({ left: point.x - 7, right: point.x + 7, top: point.y - 7, bottom: point.y + 7 });
+      }
+      if (view.zoom < 4.7) {
+        drawLabels(ctx, [{ name: "UNITED STATES", latitude: 38, longitude: -99, priority: 100 }], occupied, width, height, view,
+          { font: "600 10px ui-monospace, monospace", color: "rgba(185,211,205,.58)" });
+      } else {
+        drawLabels(ctx, stateLabels, occupied, width, height, view,
+          { abbreviation: true, font: "700 12px ui-monospace, monospace", color: "rgba(198,226,218,.72)" });
+        drawLabels(ctx, placeLabels, occupied, width, height, view,
+          { font: "500 9px ui-monospace, monospace", color: "rgba(181,204,202,.68)", offsetY: 9 });
+        if (view.zoom >= 6.65) drawLabels(ctx, countyLabels, occupied, width, height, view,
+          { font: "500 8px ui-monospace, monospace", color: "rgba(158,181,181,.52)" });
+      }
 
       ctx.save();
       ctx.lineCap = "round";
@@ -311,7 +424,9 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
 
       <div className="pointer-events-none absolute right-3 top-3 rounded-lg border border-white/10 bg-[#04111d]/88 px-3 py-2 text-right text-[9px] shadow-2xl backdrop-blur-md">
         <div className="font-mono text-white">{aircraft.length.toLocaleString()} LIVE TRACKS</div>
-        <div className={`mt-1 ${geometryState === "degraded" ? "text-amber-300" : "text-white/50"}`}>{geometryState === "online" ? "OPERATIONAL GEOMETRY ONLINE" : geometryState === "degraded" ? "OPERATIONAL GEOMETRY DEGRADED" : "LOADING OPERATIONAL GEOMETRY"}</div>
+        <div className={`mt-1 ${geometryState.country === "degraded" ? "text-amber-300" : "text-white/50"}`}>
+          COUNTRY {geometryState.country.toUpperCase()} · STATE {geometryState.state.toUpperCase()} · COUNTY {geometryState.county.toUpperCase()}
+        </div>
       </div>
 
       <div className="absolute bottom-3 left-3 z-10 flex gap-1 rounded-lg border border-white/10 bg-[#04111d]/90 p-1 shadow-2xl backdrop-blur-md">
