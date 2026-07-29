@@ -19,7 +19,8 @@ function formatObservedAt(value: string) {
 export function LiveOperationsConsole({ snapshot }: { snapshot: LiveOperationsSnapshot }) {
   const airborne = snapshot.aircraft.filter((aircraft) => !aircraft.onGround);
   const latestContact = snapshot.aircraft.reduce((latest, aircraft) => Math.max(latest, aircraft.lastContact), 0);
-  const latency = latestContact ? Math.max(0, Math.round(Date.now() / 1000 - latestContact)) : null;
+  const generatedAtSeconds = Math.floor(new Date(snapshot.generatedAt).getTime() / 1000);
+  const latency = latestContact ? Math.max(0, generatedAtSeconds - latestContact) : null;
   const reportingStations = snapshot.airportWeather.length;
 
   return (
