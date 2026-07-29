@@ -6,75 +6,37 @@ import type { AircraftTrack } from "@/lib/integrations/liveOperations";
 
 type Props = { aircraft?: AircraftTrack[] };
 type Point = { latitude: number; longitude: number };
-type ScreenPoint = { x: number; y: number; depth: number; visible: boolean };
-type Ring = number[][];
-type LandFeature = { properties?: { ADMIN?: string; NAME?: string }; geometry?: { type: string; coordinates: unknown } };
-type LandCollection = { features?: LandFeature[] };
+type Feature = { geometry?: { type: string; coordinates: unknown } };
+type FeatureCollection = { features?: Feature[] };
 type DragState = { active: boolean; x: number; y: number };
 
 const LAND_URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
 const TAU = Math.PI * 2;
 const DEG = Math.PI / 180;
 
-function seeded(seed: number) {
-  const value = Math.sin(seed * 12.9898) * 43758.5453;
-  return value - Math.floor(value);
-}
-
-const STARS = Array.from({ length: 115 }, (_, index) => ({
-  x: seeded(index + 11),
-  y: seeded(index + 41),
-  radius: 0.45 + seeded(index + 71) * 1.25,
-  alpha: 0.13 + seeded(index + 101) * 0.45,
-  phase: seeded(index + 131) * TAU,
-}));
-
-const CLOUDS = Array.from({ length: 34 }, (_, index) => ({
-  latitude: -62 + seeded(index + 201) * 124,
-  longitude: -180 + seeded(index + 251) * 360,
-  width: 18 + seeded(index + 301) * 42,
-  opacity: 0.04 + seeded(index + 351) * 0.09,
-  phase: seeded(index + 401) * TAU,
-}));
-
-function rotateVector(latitude: number, longitude: number, rotationX: number, rotationY: number) {
-  const lat = latitude * DEG;
-  const lng = longitude * DEG;
+function project(point: Point, cx: number, cy: number, radius: number, rx: number, ry: number) {
+  const lat = point.latitude * DEG;
+  const lng = point.longitude * DEG;
   let x = Math.cos(lat) * Math.sin(lng);
   let y = Math.sin(lat);
   let z = Math.cos(lat) * Math.cos(lng);
 
-  const cy = Math.cos(rotationY);
-  const sy = Math.sin(rotationY);
-  const x1 = x * cy + z * sy;
-  const z1 = -x * sy + z * cy;
-  x = x1;
-  z = z1;
+  const cyaw = Math.cos(ry);
+  const syaw = Math.sin(ry);
+  [x, z] = [x * cyaw + z * syaw, -x * syaw + z * cyaw];
 
-  const cx = Math.cos(rotationX);
-  const sx = Math.sin(rotationX);
-  const y1 = y * cx - z * sx;
-  const z2 = y * sx + z * cx;
-  y = y1;
-  z = z2;
+  const cpitch = Math.cos(rx);
+  const spitch = Math.sin(rx);
+  [y, z] = [y * cpitch - z * spitch, y * spitch + z * cpitch];
 
-  return { x, y, z };
+  return { x: cx + x * radius, y: cy - y * radius, depth: z, visible: z > -0.03 };
 }
 
-function project(point: Point, cx: number, cy: number, radius: number, rotationX: number, rotationY: number): ScreenPoint {
-  const rotated = rotateVector(point.latitude, point.longitude, rotationX, rotationY);
-  return {
-    x: cx + rotated.x * radius,
-    y: cy - rotated.y * radius,
-    depth: rotated.z,
-    visible: rotated.z > -0.025,
-  };
-}
-
-function geometryRings(geometry: LandFeature["geometry"]): Ring[] {
+function rings(feature: Feature): number[][][] {
+  const geometry = feature.geometry;
   if (!geometry) return [];
-  if (geometry.type === "Polygon") return geometry.coordinates as Ring[];
-  if (geometry.type === "MultiPolygon") return (geometry.coordinates as Ring[][]).flat();
+  if (geometry.type === "Polygon") return geometry.coordinates as number[][][];
+  if (geometry.type === "MultiPolygon") return (geometry.coordinates as number[][][][]).flat();
   return [];
 }
 
@@ -86,212 +48,17 @@ function greatCircle(start: Point, end: Point, steps = 72): Point[] {
   const a = [Math.cos(aLat) * Math.cos(aLng), Math.cos(aLat) * Math.sin(aLng), Math.sin(aLat)];
   const b = [Math.cos(bLat) * Math.cos(bLng), Math.cos(bLat) * Math.sin(bLng), Math.sin(bLat)];
   const omega = Math.acos(Math.min(1, Math.max(-1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])));
-  const sinOmega = Math.sin(omega) || 1;
+  const divisor = Math.sin(omega) || 1;
+
   return Array.from({ length: steps }, (_, index) => {
     const t = index / (steps - 1);
-    const s0 = Math.sin((1 - t) * omega) / sinOmega;
-    const s1 = Math.sin(t * omega) / sinOmega;
+    const s0 = Math.sin((1 - t) * omega) / divisor;
+    const s1 = Math.sin(t * omega) / divisor;
     const x = a[0] * s0 + b[0] * s1;
     const y = a[1] * s0 + b[1] * s1;
     const z = a[2] * s0 + b[2] * s1;
     return { latitude: Math.atan2(z, Math.hypot(x, y)) / DEG, longitude: Math.atan2(y, x) / DEG };
   });
-}
-
-function drawStars(ctx: CanvasRenderingContext2D, width: number, height: number, now: number) {
-  ctx.save();
-  for (const star of STARS) {
-    const pulse = Math.sin(now * 0.00055 + star.phase) * 0.08;
-    ctx.fillStyle = `rgba(220,238,255,${Math.max(0.05, star.alpha + pulse)})`;
-    ctx.beginPath();
-    ctx.arc(star.x * width, star.y * height, star.radius, 0, TAU);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawGlobeBase(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
-  ctx.save();
-  ctx.shadowColor = "rgba(42,143,255,.52)";
-  ctx.shadowBlur = radius * 0.17;
-  const ocean = ctx.createRadialGradient(cx - radius * 0.34, cy - radius * 0.42, radius * 0.08, cx, cy, radius);
-  ocean.addColorStop(0, "#1e5c88");
-  ocean.addColorStop(0.33, "#123f65");
-  ocean.addColorStop(0.72, "#082842");
-  ocean.addColorStop(1, "#020b15");
-  ctx.fillStyle = ocean;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, TAU);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.restore();
-}
-
-function drawGrid(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, rx: number, ry: number) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, TAU);
-  ctx.clip();
-  ctx.strokeStyle = "rgba(121,194,232,.10)";
-  ctx.lineWidth = 0.7;
-  const lines: Point[][] = [];
-  for (let lat = -60; lat <= 60; lat += 30) lines.push(Array.from({ length: 121 }, (_, i) => ({ latitude: lat, longitude: -180 + i * 3 })));
-  for (let lng = -150; lng <= 180; lng += 30) lines.push(Array.from({ length: 61 }, (_, i) => ({ latitude: -90 + i * 3, longitude: lng })));
-  for (const line of lines) {
-    ctx.beginPath();
-    let drawing = false;
-    for (const point of line) {
-      const p = project(point, cx, cy, radius, rx, ry);
-      if (!p.visible) { drawing = false; continue; }
-      if (!drawing) { ctx.moveTo(p.x, p.y); drawing = true; } else ctx.lineTo(p.x, p.y);
-    }
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawLand(ctx: CanvasRenderingContext2D, features: LandFeature[], cx: number, cy: number, radius: number, rx: number, ry: number) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, TAU);
-  ctx.clip();
-  for (const feature of features) {
-    for (const ring of geometryRings(feature.geometry)) {
-      ctx.beginPath();
-      let started = false;
-      let visibleCount = 0;
-      for (const coordinate of ring) {
-        const p = project({ longitude: coordinate[0], latitude: coordinate[1] }, cx, cy, radius, rx, ry);
-        if (!p.visible) { started = false; continue; }
-        visibleCount += 1;
-        if (!started) { ctx.moveTo(p.x, p.y); started = true; } else ctx.lineTo(p.x, p.y);
-      }
-      if (visibleCount < 3) continue;
-      ctx.closePath();
-      const land = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
-      land.addColorStop(0, "rgba(72,125,103,.98)");
-      land.addColorStop(0.48, "rgba(38,91,77,.98)");
-      land.addColorStop(1, "rgba(18,56,49,.98)");
-      ctx.fillStyle = land;
-      ctx.fill();
-      ctx.strokeStyle = "rgba(166,218,190,.32)";
-      ctx.lineWidth = Math.max(0.45, radius / 760);
-      ctx.stroke();
-    }
-  }
-  ctx.restore();
-}
-
-function drawClouds(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, rx: number, ry: number, now: number) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, TAU);
-  ctx.clip();
-  ctx.globalCompositeOperation = "screen";
-  for (const cloud of CLOUDS) {
-    const longitude = cloud.longitude + (now * 0.0018) % 360;
-    const p = project({ latitude: cloud.latitude, longitude }, cx, cy, radius, rx, ry);
-    if (!p.visible || p.depth < 0.05) continue;
-    const scale = Math.max(0.12, p.depth);
-    const w = (cloud.width / 180) * radius * scale;
-    const h = w * (0.22 + seeded(Math.round(cloud.phase * 100)) * 0.18);
-    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, w);
-    gradient.addColorStop(0, `rgba(255,255,255,${cloud.opacity * scale})`);
-    gradient.addColorStop(0.55, `rgba(220,239,255,${cloud.opacity * 0.7 * scale})`);
-    gradient.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.ellipse(p.x, p.y, w, h, cloud.phase, 0, TAU);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawRoute(ctx: CanvasRenderingContext2D, points: Point[], cx: number, cy: number, radius: number, rx: number, ry: number, now: number) {
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.shadowColor = "rgba(215,168,75,.9)";
-  ctx.shadowBlur = 10;
-  ctx.strokeStyle = "rgba(215,168,75,.92)";
-  ctx.lineWidth = 2;
-  ctx.setLineDash([9, 7]);
-  ctx.lineDashOffset = -(now * 0.025) % 16;
-  ctx.beginPath();
-  let drawing = false;
-  for (const point of points) {
-    const p = project(point, cx, cy, radius * 1.012, rx, ry);
-    if (!p.visible) { drawing = false; continue; }
-    if (!drawing) { ctx.moveTo(p.x, p.y); drawing = true; } else ctx.lineTo(p.x, p.y);
-  }
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawBeacon(ctx: CanvasRenderingContext2D, point: Point, label: string, cx: number, cy: number, radius: number, rx: number, ry: number, now: number) {
-  const p = project(point, cx, cy, radius * 1.016, rx, ry);
-  if (!p.visible || p.depth < 0) return;
-  const pulse = 7 + ((now * 0.025) % 18);
-  ctx.save();
-  ctx.strokeStyle = `rgba(215,168,75,${0.62 - (pulse - 7) / 35})`;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, pulse, 0, TAU);
-  ctx.stroke();
-  ctx.fillStyle = "#f0c96e";
-  ctx.shadowColor = "#f0c96e";
-  ctx.shadowBlur = 13;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, 3.4, 0, TAU);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.font = "600 10px ui-monospace, SFMono-Regular, Menlo, monospace";
-  ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(255,255,255,.92)";
-  ctx.fillText(label, p.x, p.y - 13);
-  ctx.restore();
-}
-
-function drawAircraft(ctx: CanvasRenderingContext2D, aircraft: AircraftTrack[], cx: number, cy: number, radius: number, rx: number, ry: number) {
-  ctx.save();
-  for (const track of aircraft.slice(0, 90)) {
-    const p = project(track, cx, cy, radius * 1.022, rx, ry);
-    if (!p.visible || p.depth < 0.08) continue;
-    const angle = ((track.heading ?? 0) - 90) * DEG;
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(angle);
-    ctx.fillStyle = track.onGround ? "rgba(246,185,74,.9)" : "rgba(39,211,183,.92)";
-    ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(5, 0);
-    ctx.lineTo(-4, -2.8);
-    ctx.lineTo(-2.5, 0);
-    ctx.lineTo(-4, 2.8);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-  ctx.restore();
-}
-
-function drawAtmosphere(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number) {
-  ctx.save();
-  const atmosphere = ctx.createRadialGradient(cx, cy, radius * 0.88, cx, cy, radius * 1.11);
-  atmosphere.addColorStop(0, "rgba(83,181,255,0)");
-  atmosphere.addColorStop(0.67, "rgba(83,181,255,.12)");
-  atmosphere.addColorStop(0.84, "rgba(83,181,255,.28)");
-  atmosphere.addColorStop(1, "rgba(83,181,255,0)");
-  ctx.fillStyle = atmosphere;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius * 1.12, 0, TAU);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(130,207,255,.32)";
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, TAU);
-  ctx.stroke();
-  ctx.restore();
 }
 
 export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
@@ -300,22 +67,30 @@ export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
   const rotationRef = useRef({ x: -0.14, y: 1.35 });
   const zoomRef = useRef(1);
   const dragRef = useRef<DragState>({ active: false, x: 0, y: 0 });
-  const featuresRef = useRef<LandFeature[]>([]);
-  const aircraftRef = useRef(aircraft);
+  const featuresRef = useRef<Feature[]>([]);
+  const aircraftRef = useRef<AircraftTrack[]>(aircraft);
   const [landReady, setLandReady] = useState(false);
   const [mode, setMode] = useState<"GLOBE" | "REGIONAL">("GLOBE");
-  aircraftRef.current = aircraft;
+
+  useEffect(() => {
+    aircraftRef.current = aircraft;
+  }, [aircraft]);
 
   useEffect(() => {
     let cancelled = false;
     fetch(LAND_URL, { cache: "force-cache" })
-      .then((response) => response.ok ? response.json() as Promise<LandCollection> : Promise.reject(new Error("boundaries unavailable")))
+      .then((response) => {
+        if (!response.ok) throw new Error("boundaries unavailable");
+        return response.json() as Promise<FeatureCollection>;
+      })
       .then((data) => {
         if (cancelled) return;
         featuresRef.current = data.features ?? [];
         setLandReady(true);
       })
-      .catch(() => setLandReady(false));
+      .catch(() => {
+        if (!cancelled) setLandReady(false);
+      });
     return () => { cancelled = true; };
   }, []);
 
@@ -325,9 +100,10 @@ export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
     if (!canvas || !container) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
-    const corridor = greatCircle(demoAirports[0], demoAirports[2]);
-    let frame = 0;
-    let last = performance.now();
+
+    const route = greatCircle(demoAirports[0], demoAirports[2]);
+    let animationFrame = 0;
+    let previous = performance.now();
     let width = 0;
     let height = 0;
 
@@ -342,42 +118,127 @@ export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(container);
 
     const render = (now: number) => {
-      const delta = Math.min(34, now - last);
-      last = now;
-      const dragging = dragRef.current.active;
-      if (!dragging && mode === "GLOBE") rotationRef.current.y += delta * 0.000025;
+      const delta = Math.min(34, now - previous);
+      previous = now;
+      if (!dragRef.current.active && mode === "GLOBE") rotationRef.current.y += delta * 0.000025;
+
       const cx = width * 0.5;
       const cy = height * 0.53;
       const baseRadius = Math.min(width * 0.37, height * 0.405);
       const radius = baseRadius * zoomRef.current * (mode === "REGIONAL" ? 1.34 : 1);
-      const rx = rotationRef.current.x;
-      const ry = rotationRef.current.y;
+      const { x: rx, y: ry } = rotationRef.current;
 
-      const backdrop = ctx.createRadialGradient(cx, cy * 0.84, 0, cx, cy, Math.max(width, height) * 0.78);
-      backdrop.addColorStop(0, "#102b43");
-      backdrop.addColorStop(0.48, "#06131f");
-      backdrop.addColorStop(1, "#010407");
-      ctx.fillStyle = backdrop;
+      const background = ctx.createRadialGradient(cx, cy * 0.84, 0, cx, cy, Math.max(width, height) * 0.78);
+      background.addColorStop(0, "#102b43");
+      background.addColorStop(0.48, "#06131f");
+      background.addColorStop(1, "#010407");
+      ctx.fillStyle = background;
       ctx.fillRect(0, 0, width, height);
-      drawStars(ctx, width, height, now);
-      drawGlobeBase(ctx, cx, cy, radius);
-      drawGrid(ctx, cx, cy, radius, rx, ry);
-      drawLand(ctx, featuresRef.current, cx, cy, radius, rx, ry);
-      drawClouds(ctx, cx, cy, radius, rx, ry, now);
-      drawRoute(ctx, corridor, cx, cy, radius, rx, ry, now);
-      for (const airport of demoAirports) drawBeacon(ctx, airport, airport.code, cx, cy, radius, rx, ry, now);
-      drawAircraft(ctx, aircraftRef.current, cx, cy, radius, rx, ry);
-      drawAtmosphere(ctx, cx, cy, radius);
-      frame = requestAnimationFrame(render);
+
+      ctx.save();
+      ctx.shadowColor = "rgba(42,143,255,.55)";
+      ctx.shadowBlur = radius * 0.17;
+      const ocean = ctx.createRadialGradient(cx - radius * 0.34, cy - radius * 0.42, radius * 0.08, cx, cy, radius);
+      ocean.addColorStop(0, "#1e5c88");
+      ocean.addColorStop(0.35, "#123f65");
+      ocean.addColorStop(1, "#020b15");
+      ctx.fillStyle = ocean;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.clip();
+      for (const feature of featuresRef.current) {
+        for (const ring of rings(feature)) {
+          ctx.beginPath();
+          let started = false;
+          let count = 0;
+          for (const coordinate of ring) {
+            const point = project({ longitude: coordinate[0], latitude: coordinate[1] }, cx, cy, radius, rx, ry);
+            if (!point.visible) { started = false; continue; }
+            count += 1;
+            if (!started) { ctx.moveTo(point.x, point.y); started = true; } else ctx.lineTo(point.x, point.y);
+          }
+          if (count < 3) continue;
+          ctx.closePath();
+          ctx.fillStyle = "rgba(38,91,77,.98)";
+          ctx.fill();
+          ctx.strokeStyle = "rgba(166,218,190,.32)";
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(215,168,75,.95)";
+      ctx.shadowColor = "rgba(215,168,75,.9)";
+      ctx.shadowBlur = 10;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([9, 7]);
+      ctx.lineDashOffset = -(now * 0.025) % 16;
+      ctx.beginPath();
+      let routeStarted = false;
+      for (const point of route) {
+        const projected = project(point, cx, cy, radius * 1.012, rx, ry);
+        if (!projected.visible) { routeStarted = false; continue; }
+        if (!routeStarted) { ctx.moveTo(projected.x, projected.y); routeStarted = true; } else ctx.lineTo(projected.x, projected.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      for (const airport of demoAirports) {
+        const point = project(airport, cx, cy, radius * 1.016, rx, ry);
+        if (!point.visible || point.depth < 0) continue;
+        ctx.fillStyle = "#f0c96e";
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 3.5, 0, TAU);
+        ctx.fill();
+        ctx.font = "600 10px ui-monospace, monospace";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(255,255,255,.92)";
+        ctx.fillText(airport.code, point.x, point.y - 13);
+      }
+
+      for (const track of aircraftRef.current.slice(0, 90)) {
+        const point = project(track, cx, cy, radius * 1.022, rx, ry);
+        if (!point.visible || point.depth < 0.08) continue;
+        ctx.save();
+        ctx.translate(point.x, point.y);
+        ctx.rotate(((track.heading ?? 0) - 90) * DEG);
+        ctx.fillStyle = track.onGround ? "#f6b94a" : "#27d3b7";
+        ctx.beginPath();
+        ctx.moveTo(5, 0);
+        ctx.lineTo(-4, -2.8);
+        ctx.lineTo(-2.5, 0);
+        ctx.lineTo(-4, 2.8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.strokeStyle = "rgba(130,207,255,.35)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, TAU);
+      ctx.stroke();
+
+      animationFrame = requestAnimationFrame(render);
     };
-    frame = requestAnimationFrame(render);
+
+    animationFrame = requestAnimationFrame(render);
     return () => {
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(animationFrame);
       observer.disconnect();
     };
   }, [mode]);
