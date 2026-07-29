@@ -1,6 +1,25 @@
 "use client";
-import "leaflet/dist/leaflet.css";
-import {CircleMarker,MapContainer,Polyline,Popup,TileLayer} from "react-leaflet";
-import {demoAirports} from "@/lib/demo/airports";
-import type {AircraftTrack} from "@/lib/integrations/liveOperations";
-export default function AviationMap({aircraft=[]}:{aircraft?:AircraftTrack[]}){return <div className="relative h-[440px] overflow-hidden rounded-2xl border border-white/10"><MapContainer center={[29.4,-82.2]} zoom={6} scrollWheelZoom className="h-full w-full" aria-label="MIA FLL ATL live public aviation map"><TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/><Polyline positions={demoAirports.map(a=>[a.latitude,a.longitude])} pathOptions={{color:"#d4af37",dashArray:"8 8",weight:2}}/>{demoAirports.map(a=><CircleMarker key={a.code} center={[a.latitude,a.longitude]} radius={9} pathOptions={{color:"#d4af37",fillColor:"#06101d",fillOpacity:1}}><Popup><b>{a.code} · {a.name}</b><br/>{a.icao} · demonstration corridor</Popup></CircleMarker>)}{aircraft.slice(0,40).map(a=><CircleMarker key={a.icao24} center={[a.latitude,a.longitude]} radius={5} pathOptions={{color:a.onGround?"#f6b94a":"#27d3b7",fillOpacity:.85}}><Popup><b>{a.callsign||a.icao24}</b><br/>{a.country}<br/>{Math.round(a.altitudeM).toLocaleString()} m · {a.velocityKph} km/h<br/>Heading {Math.round(a.heading)}°</Popup></CircleMarker>)}</MapContainer><div className="pointer-events-none absolute left-3 top-3 z-[500] rounded-lg bg-[#06101d]/90 px-3 py-2 text-[9px] text-white shadow"><b className="text-cyan">LIVE PUBLIC DATA</b><br/>OpenStreetMap · OpenSky positions</div></div>}
+
+import dynamic from "next/dynamic";
+import type { AircraftTrack } from "@/lib/integrations/liveOperations";
+
+const RealisticAviationGlobe = dynamic(
+  () => import("@/components/dashboard/RealisticAviationGlobe"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[540px] min-h-[440px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(circle_at_50%_42%,#13283d_0%,#071019_54%,#02060b_100%)]">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-white/15 border-t-[#27d3b7]" />
+          <p className="mt-4 text-[10px] font-semibold tracking-[0.18em] text-white/55">
+            INITIALIZING AVIATION GLOBE
+          </p>
+        </div>
+      </div>
+    ),
+  },
+);
+
+export default function AviationMap({ aircraft = [] }: { aircraft?: AircraftTrack[] }) {
+  return <RealisticAviationGlobe aircraft={aircraft} />;
+}
