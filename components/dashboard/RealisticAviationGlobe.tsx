@@ -244,8 +244,12 @@ export default function RealisticAviationGlobe({ aircraft = [] }: Props) {
   }, [mode]);
 
   const focusCorridor = () => {
-    rotationRef.current = { x: -0.37, y: 1.47 };
-    zoomRef.current = 1.15;
+    const routeMidpoint = greatCircle(demoAirports[0], demoAirports[2], 3)[1];
+    rotationRef.current = {
+      x: routeMidpoint.latitude * DEG,
+      y: -routeMidpoint.longitude * DEG,
+    };
+    zoomRef.current = 1.08;
     setMode("REGIONAL");
   };
 
