@@ -59,6 +59,21 @@ BAG-DNA OS is structured for international stakeholder evaluation through a stan
 - Staff geofencing and insider-threat monitoring
 - Global pilot and standards-review workspace
 
+## Security and compliance foundation
+
+The repository includes implementation-ready controls for:
+
+- tenant-aware role-based authorization and MFA-sensitive permissions;
+- hash-linked SHA-256 custody-event creation and verification;
+- privacy classification, rights requests, retention, deletion, and incident escalation;
+- security and privacy incident response with evidence preservation;
+- IATA Resolution 753 custody-point mapping and ICAO-aligned security objectives;
+- AI human-oversight requirements, control ownership, and automated CI security gates.
+
+See `docs/COMPLIANCE_ROADMAP.md`, `docs/CONTROL_REGISTER.md`, `docs/AI_GOVERNANCE.md`, `docs/PRIVACY_OPERATIONS.md`, `docs/INCIDENT_RESPONSE.md`, and `docs/AVIATION_CONTROL_MAPPING.md`.
+
+These controls establish engineering and audit readiness. They do not constitute certification, regulatory approval, or proof that production controls are operating effectively.
+
 ## Technology
 
 - Next.js 15, React 19, TypeScript, App Router
