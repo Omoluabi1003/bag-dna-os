@@ -1,23 +1,29 @@
 # BAG-DNA OS Control Register
 
-| Domain | Minimum control | Evidence | Owner | Status |
+This register tracks engineering and governance controls required for production and certification readiness. Status values are `planned`, `implemented-design`, `operating-evidence-required`, and `validated`.
+
+| Control | Objective | Owner | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| Governance | Approved security, privacy, AI, continuity, and incident policies | Versioned policies and approvals | Executive owner | Planned |
-| Asset management | Inventory systems, data stores, integrations, devices, models, and vendors | Asset register | Security lead | Planned |
-| Identity | Managed authentication, MFA, RBAC, and joiner-mover-leaver process | Access reviews and authentication logs | Platform owner | Planned |
-| Data protection | Classification, minimization, encryption, retention, deletion, and regional handling | Data map, key records, deletion evidence | Privacy owner | Planned |
-| Application security | Threat modeling, code review, SAST, dependency review, secret scanning, and penetration testing | CI results and assessment reports | Engineering lead | In progress |
-| Custody integrity | Append-only events, signatures or hashes, trusted timestamps, and verification exports | Integrity verification reports | Evidence owner | Planned |
-| Logging | Centralized security, administrative, custody, and model-decision logs | Log samples and alert records | Operations lead | Planned |
-| AI governance | Use-case inventory, risk classification, model cards, evaluation, drift monitoring, and human oversight | AI impact assessments and evaluation reports | AI governance owner | Planned |
-| Privacy | DPIA, lawful basis, rights handling, cross-border controls, and breach workflow | DPIA and request records | Privacy owner | Planned |
-| Aviation interoperability | IATA baggage-event and messaging mapping | Interface specifications and partner tests | Integration owner | Planned |
-| Aviation security | ICAO-aligned control and operational-procedure mapping | Reviewed mapping and exercise evidence | Aviation security owner | Planned |
-| Resilience | Backups, restoration tests, failover, offline procedures, RTO, and RPO | Exercise reports | Operations lead | Planned |
-| Incident response | Severity model, communications, evidence preservation, and regulatory notification | Tabletop and incident records | Incident commander | Planned |
-| Vendor risk | Due diligence, contracts, subprocessors, service monitoring, and exit plans | Vendor register and reviews | Procurement owner | Planned |
-| Secure release | Protected branches, required reviews and checks, and signed release records | GitHub settings and release evidence | Engineering lead | In progress |
+| AC-01 | Enforce tenant-aware role-based access | Security Engineering | authorization module, access tests, access logs | implemented-design |
+| AC-02 | Require MFA for privileged and evidence-export actions | Identity and Access | identity-provider policy, MFA logs, break-glass review | operating-evidence-required |
+| AC-03 | Prevent cross-tenant access | Platform Engineering | tenant predicates, negative tests, penetration-test results | implemented-design |
+| EV-01 | Generate hash-linked custody events | Platform Engineering | custody-ledger module, event samples, verification results | implemented-design |
+| EV-02 | Preserve append-only evidence | Security Engineering | immutable storage configuration, write controls, retention policy | operating-evidence-required |
+| EV-03 | Control evidence export | Security and Legal | export approval, manifest, hashes, access logs | planned |
+| PR-01 | Maintain data inventory and lawful-purpose record | Privacy | processing inventory, records of processing | operating-evidence-required |
+| PR-02 | Apply retention and deletion | Privacy and Platform | approved schedule, deletion jobs, completion logs | implemented-design |
+| PR-03 | Fulfil privacy rights requests | Privacy | request register, identity checks, response evidence | implemented-design |
+| PR-04 | Govern biometric and sensitive processing | Privacy, AI Governance, Legal | DPIA, necessity assessment, accuracy report, approvals | planned |
+| IR-01 | Detect, classify, and coordinate incidents | Security | incident plan, alert records, exercise reports | implemented-design |
+| IR-02 | Preserve forensic chain of custody | Security and Legal | artifact hashes, evidence handlers, UTC chronology | implemented-design |
+| BC-01 | Recover core services and custody integrity | Reliability | BCP, restore tests, RTO/RPO results, chain verification | planned |
+| AI-01 | Require accountable human oversight | AI Governance | decision workflow, overrides, dispositions, training | implemented-design |
+| AI-02 | Monitor model performance and drift | AI Engineering | validation data, thresholds, monitoring reports | planned |
+| AV-01 | Record applicable IATA Resolution 753 custody points | Aviation Operations | acquisition logs, reconciliation reports, pilot results | implemented-design |
+| AV-02 | Detect and escalate custody anomalies | Aviation Security | seeded anomaly tests, alert chronology, disposition | operating-evidence-required |
+| SD-01 | Run lint, type, build, dependency, secret, and code scanning | Engineering | GitHub Actions runs, findings and remediation | implemented-design |
+| VR-01 | Assess critical vendors and subprocessors | Procurement and Security | assessments, contracts, SOC reports, issue register | planned |
 
-## Control-evidence rule
+## Status rule
 
-A control is not complete because it appears in a document. It is complete only when it has an accountable owner, an operating procedure, retained evidence, review frequency, exception process, and demonstrated effectiveness.
+`Implemented-design` means the repository contains an approved design, procedure, mapping, or enforcement primitive. It does not mean the control is deployed or effective. A control moves to `operating-evidence-required` when deployed but awaiting a sufficient observation period, and to `validated` only after internal or independent testing confirms effectiveness.
