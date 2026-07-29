@@ -1,111 +1,64 @@
-import { AlertTriangle, BriefcaseBusiness, Plane, ScanLine, ShieldCheck } from "lucide-react";
+import { Activity, DatabaseZap, Fingerprint, Network, ShieldCheck } from "lucide-react";
 import { AppShell } from "@/components/shell";
-import { Badge, MetricCard, Progress, SectionHeading, StatusDot } from "@/components/ui";
-import { alerts, flights } from "@/lib/data";
-import { CustodyChart } from "@/components/dashboard/CustodyChart";
-import { IncidentTrend } from "@/components/dashboard/IncidentTrend";
-import { RiskChart } from "@/components/dashboard/RiskChart";
-import { LiveDataPanel } from "@/components/integrations/LiveDataPanel";
-import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns, scoreAirportReputation, calculateInsuranceIntelligence, buildCollectiveIntelligence } from "@/lib/intelligence";
+import { Badge, MetricCard, SectionHeading } from "@/components/ui";
+import { LiveOperationsConsole } from "@/components/dashboard/LiveOperationsConsole";
+import { getLiveOperationsSnapshot } from "@/lib/integrations/liveOperations";
+import { calculateIntegrityScore, calculateIdentityConfidence, detectThreatPatterns } from "@/lib/intelligence";
 
-const corridorSignals = [
-  ["Primary hub activity", "4,820 bags", "Peak international departure bank"],
-  ["Secondary hub activity", "2,140 bags", "Regional transfer pressure"],
-  ["Primary → Secondary", "14 risk", "High-volume domestic proof corridor"],
-  ["Primary → Global Gateway", "31 risk", "Claims and customs intelligence value"],
-  ["Secondary → Transfer Gateway", "27 risk", "International outbound watch"],
-  ["Network baggage volume", "68%", "Demonstration corridor share"],
-  ["Outbound risk", "2.7%", "Enhanced reconciliation candidates"],
-  ["Claim dispute indicators", "43", "Evidence review opportunities"],
-];
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const snapshot = await getLiveOperationsSnapshot();
   const integrity = calculateIntegrityScore();
   const identity = calculateIdentityConfidence();
   const threat = detectThreatPatterns();
-  const airport = scoreAirportReputation()[0];
-  const insurance = calculateInsuranceIntelligence();
-  const network = buildCollectiveIntelligence();
+
   return (
-    <AppShell title="Aviation Operations Dashboard" eyebrow="Global corridor command · ICAO-aligned controls">
-      <div className="mb-9 flex flex-wrap items-end justify-between gap-5">
+    <AppShell title="BAG-DNA Operations Center" eyebrow="Live public aviation context · secure baggage identity workspace">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cyan">Live operating picture</p>
-          <h2 className="mt-3 max-w-3xl font-display text-4xl font-semibold tracking-[-.04em] text-ivory md:text-5xl">Every bag. One clear view.</h2>
-          <p className="mt-3 text-sm text-mist">Monday, June 15 · 17:02 UTC · Multi-airport corridor operations</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[.14em] text-cyan">Operational command environment</p>
+          <h2 className="mt-3 max-w-4xl font-display text-4xl font-semibold tracking-[-.045em] text-ivory md:text-6xl">A working aviation console, not a marketing page.</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-mist">Current aircraft movement and airport weather are pulled from free public aviation feeds. BAG-DNA identity intelligence remains clearly separated as a controlled demonstration layer until airport and airline credentials are connected.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Badge tone="emerald"><StatusDot/> Live</Badge><Badge>Last sync 4 sec ago</Badge><Badge tone="gold">ICAO alignment review</Badge></div>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <MetricCard label="Bag Integrity Score" value="96.8" change="+1.4%" detail="network average" icon={BriefcaseBusiness}/>
-        <MetricCard label="Verification Pass Rate" value="99.66%" change="+0.08%" detail="all identity checks" icon={Plane}/>
-        <MetricCard label="Custody Continuity" value="99.84%" change="+0.12%" detail="gap-free journeys" icon={ScanLine}/>
-        <MetricCard label="Claim Closure Rate" value="98.9%" change="+0.6%" detail="verified release" icon={ShieldCheck}/>
-        <MetricCard label="Mismatch Detection" value="43" change="−18.1%" detail="17 stopped pre-load" icon={AlertTriangle}/>
+        <div className="flex flex-wrap gap-2"><Badge tone={snapshot.mode === "live" ? "emerald" : "amber"}>{snapshot.mode === "live" ? "Public feeds live" : "Continuity mode"}</Badge><Badge>60-second refresh</Badge><Badge tone="gold">MIA · FLL · ATL corridor</Badge></div>
       </div>
 
-      <section className="glass mt-7 p-6 md:p-7">
-        <SectionHeading eyebrow="Visible Intelligence Layer" title="Same-bag proof, threat impact and recommended actions" action={<Badge tone="emerald">Intelligence active</Badge>}/>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            ["Bag Integrity Score", `${integrity.score} · ${integrity.band}`, integrity.explanation],
-            ["Identity Confidence", `${identity.confidencePercentage}%`, identity.verificationSummary],
-            ["Threat Signature Match", `${threat.matchedThreats[0]?.id ?? "None"} · ${threat.threatConfidence}%`, threat.evidence[0] ?? "No evidence"],
-            ["Airport Trust Index", `${airport?.airportTrustIndex ?? "N/A"} · ${airport?.riskTrend ?? "Unknown"}`, "Airport trust index suggests additional verification at arrival if seal status changes."],
-            ["Insurance Exposure", insurance.estimatedClaimExposure, insurance.insurerSummary],
-            ["Collective Intelligence Alerts", `${network.anonymizedThreats.length} shared`, network.recommendedNetworkAction],
-            ["Recommended Actions", "Security + passenger + insurance", threat.recommendedAction],
-          ].map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><b className="mt-2 block text-lg text-ivory">{value}</b><p className="mt-2 text-[11px] leading-5 text-cyan">{detail}</p></article>)}
+      <LiveOperationsConsole snapshot={snapshot}/>
+
+      <section className="mt-8 rounded-[28px] border border-white/[.08] bg-[#071522] p-6 md:p-8">
+        <SectionHeading eyebrow="Controlled BAG-DNA workspace" title="Identity and custody intelligence demonstration" action={<Badge tone="cyan">Sandbox data</Badge>}/>
+        <p className="-mt-2 mb-6 max-w-3xl text-xs leading-6 text-mist">These cards exercise the BAG-DNA scoring engine against repository demonstration records. They are intentionally labelled sandbox data and are not presented as airline production events.</p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard label="Integrity score" value={`${integrity.score}`} change={integrity.band} detail="demonstration record set" icon={ShieldCheck}/>
+          <MetricCard label="Identity confidence" value={`${identity.confidencePercentage}%`} change="Verified" detail="bag, route and custody signals" icon={Fingerprint}/>
+          <MetricCard label="Threat pattern" value={threat.matchedThreats[0]?.id ?? "None"} change={`${threat.threatConfidence}%`} detail="rules-engine confidence" icon={Activity}/>
+          <MetricCard label="Custody graph" value="Hash-linked" change="Active" detail="tamper-evident event model" icon={Network}/>
         </div>
       </section>
 
-      <section className="glass mt-7 p-6 md:p-7">
-        <SectionHeading eyebrow="Global Aviation Intelligence Hub" title="International corridor operating picture" action={<Badge tone="gold">ICAO review posture</Badge>}/>
-        <p className="-mt-2 mb-5 max-w-3xl text-xs leading-5 text-mist">Decision support for airport authorities, airlines, customs, security teams and insurers, protecting baggage identity, airport reputation and chain-of-custody assurance across participating jurisdictions.</p>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{corridorSignals.map(([label,value,detail])=><article key={label} className="rounded-2xl border border-white/[.08] bg-white/[.025] p-4"><p className="text-[10px] uppercase tracking-[.12em] text-mist">{label}</p><p className="mt-3 text-xl font-semibold text-ivory">{value}</p><p className="mt-1 text-[10px] leading-4 text-cyan">{detail}</p></article>)}</div>
+      <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+        <article className="glass p-6 md:p-7">
+          <div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.14em] text-cyan">Integration boundary</p><h3 className="mt-2 text-xl font-semibold text-white">What becomes truly live next</h3></div><DatabaseZap className="text-cyan"/></div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">{[
+            ["Baggage reconciliation", "Airline BRS or IATA baggage messaging credentials"],
+            ["Screening events", "Airport security and explosive-detection interfaces"],
+            ["Passenger binding", "Departure control and identity-provider authorization"],
+            ["Claims evidence", "Airline or insurer case-management API access"],
+          ].map(([title, detail]) => <div key={title} className="rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><p className="text-xs font-semibold text-white">{title}</p><p className="mt-2 text-[10px] leading-5 text-mist">{detail}</p></div>)}</div>
+        </article>
+        <article className="glass p-6 md:p-7">
+          <p className="text-[10px] font-bold uppercase tracking-[.14em] text-gold">Production posture</p>
+          <h3 className="mt-2 text-xl font-semibold text-white">No fabricated “live” baggage numbers</h3>
+          <p className="mt-4 text-xs leading-6 text-mist">The console now distinguishes public operational context, controlled BAG-DNA sandbox intelligence, and integrations that require stakeholder authorization. That makes the platform more credible during airport, airline, regulator, and investor review.</p>
+          <div className="mt-6 space-y-3 text-[11px]">{[
+            ["Public aviation context", "Live"],
+            ["BAG-DNA scoring engine", "Sandbox"],
+            ["Airport and airline systems", "Credential required"],
+          ].map(([label, value]) => <div key={label} className="flex items-center justify-between border-b border-white/[.06] pb-3"><span className="text-mist">{label}</span><b className="text-cyan">{value}</b></div>)}</div>
+        </article>
       </section>
-
-      <section className="glass mt-7 p-6 md:p-7">
-        <SectionHeading eyebrow="Standards alignment" title="Security, facilitation and governance review readiness"/>
-        <div className="grid gap-4 md:grid-cols-3">{[["Security-control mapping",91,"Identity, screening, custody integrity and anomaly intervention"],["Facilitation mapping",86,"Interoperability, passenger protection and operational continuity"],["Governance evidence",93,"Privacy, auditability, human oversight and evidence export"]].map(([label,value,detail])=><article key={String(label)} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><div className="flex justify-between text-xs"><span className="text-mist">{String(label)}</span><b className="text-emerald-300">{Number(value)}%</b></div><div className="mt-3"><Progress value={Number(value)} tone={Number(value)>90?"emerald":"gold"}/></div><p className="mt-3 text-[11px] leading-5 text-mist">{String(detail)}</p></article>)}</div>
-      </section>
-
-      <div className="mt-7 grid gap-7 xl:grid-cols-[1.15fr_.85fr]"><LiveDataPanel/><section className="glass p-6"><SectionHeading eyebrow="Assurance indicators" title="Security and claims posture"/><div className="grid gap-3 sm:grid-cols-2">{[["Staff anomaly count","3","Assignment and geofence review"],["Tamper seal events","7","2 require investigator confirmation"],["Claim dispute indicators","43","Evidence packages available"],["International corridor risk","Moderate","Weather and transfer pressure drive monitoring"]].map(([a,b,c])=><article key={a} className="rounded-2xl border border-white/10 bg-white/[.03] p-4"><p className="text-[10px] uppercase tracking-wider text-slate-300">{a}</p><b className="mt-2 block text-xl text-white">{b}</b><p className="mt-1 text-[11px] leading-5 text-slate-300">{c}</p></article>)}</div></section></div>
-
-      <div className="mt-7 grid gap-7 xl:grid-cols-[1.55fr_.8fr]">
-        <section className="glass p-6 md:p-7">
-          <SectionHeading eyebrow="Departure bank 03" title="Flight load progression" action={<button className="text-[9px] font-bold uppercase tracking-wider text-cyan">View all flights →</button>}/>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[620px] text-left">
-              <thead><tr className="border-b border-white/[.08] text-[10px] uppercase tracking-[.12em] text-mist"><th className="pb-4 font-medium">Flight</th><th className="pb-4 font-medium">Departure</th><th className="pb-4 font-medium">Gate</th><th className="pb-4 font-medium">Load progression</th><th className="pb-4 text-right font-medium">Status</th></tr></thead>
-              <tbody>{flights.map((f) => <tr key={f.code} className="border-b border-white/[.05] text-xs">
-                <td className="py-4"><p className="font-bold text-ivory">{f.code}</p><p className="mt-1 text-[9px] text-mist">{f.route}</p></td>
-                <td className="py-4 font-mono text-mist">{f.departure}</td><td className="py-4 text-mist">{f.gate}</td>
-                <td className="w-[32%] py-4"><div className="mb-2 flex justify-between text-[9px]"><span className="text-mist">{f.loaded} / {f.bags} bags</span><span>{Math.round(f.loaded/f.bags*100)}%</span></div><Progress value={f.loaded/f.bags*100}/></td>
-                <td className="py-4 text-right"><Badge tone={f.status === "Boarding" ? "emerald" : "cyan"}>{f.status}</Badge></td>
-              </tr>)}</tbody>
-            </table>
-          </div>
-        </section>
-        <section className="glass p-6 md:p-7">
-          <SectionHeading eyebrow="Action queue" title="Live exceptions" action={<span className="text-[10px] text-red-300">4 urgent</span>}/>
-          <div className="space-y-2">{alerts.map((a,i) => <div key={a.id} className="group rounded-2xl border border-white/[.06] bg-white/[.025] p-4 transition hover:border-white/[.12] hover:bg-white/[.045]">
-            <div className="flex items-start justify-between"><p className="text-[11px] font-bold text-ivory">{a.title}</p><span className="text-[9px] text-mist">{a.time}</span></div>
-            <p className="mt-1.5 text-[9px] text-mist">{a.detail}</p>
-            <div className="mt-3 flex items-center justify-between"><span className="font-mono text-[8px] text-mist/60">{a.id}</span><Badge tone={i===0?"red":i===1?"amber":"slate"}>{a.severity}</Badge></div>
-          </div>)}</div>
-        </section>
-      </div>
-
-      <section className="glass mt-7 p-6 md:p-7"><SectionHeading eyebrow="System throughput" title="24-hour baggage event volume"/>
-        <div className="flex h-32 items-end gap-1.5">{[31,28,22,19,17,23,41,67,84,72,64,77,89,93,84,76,82,91,96,88,71,58,46,38].map((v,i)=><div key={i} className="group relative flex-1 rounded-t-full bg-cyan/15 transition hover:bg-cyan/40" style={{height:`${v}%`}}><span className="absolute -top-5 hidden text-[8px] text-cyan group-hover:block">{v}k</span></div>)}</div>
-        <div className="mt-2 flex justify-between font-mono text-[8px] text-mist"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
-      </section>
-      <div className="mt-7 grid gap-7 xl:grid-cols-3">
-        <section className="glass p-6"><SectionHeading eyebrow="Custody stages" title="Events by operational stage"/><CustodyChart/></section>
-        <section className="glass p-6"><SectionHeading eyebrow="AI distribution" title="Portfolio risk bands"/><RiskChart/></section>
-        <section className="glass p-6"><SectionHeading eyebrow="Security posture" title="Incident trend"/><IncidentTrend/><div className="grid grid-cols-2 gap-3 border-t border-white/[.07] pt-5 text-[11px]"><span className="text-mist">Avg custody confidence</span><b className="text-right text-emerald-300">97.8%</b><span className="text-mist">Misrouting risk</span><b className="text-right">0.18%</b><span className="text-mist">High-risk corridors</span><b className="text-right text-amber-300">3</b></div></section>
-      </div>
     </AppShell>
   );
 }
