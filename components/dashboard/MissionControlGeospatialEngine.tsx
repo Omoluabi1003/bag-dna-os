@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { demoAirports } from "@/lib/demo/airports";
 import { countyLabels, placeLabels, stateLabels, type MapLabel } from "@/lib/geospatialLabels";
 import type { AircraftTrack } from "@/lib/integrations/liveOperations";
+import { resolveCorridorAirports, type OperationalCorridor } from "@/lib/operations/corridors";
 
-type Props = { aircraft?: AircraftTrack[] };
+type Props = { aircraft?: AircraftTrack[]; corridor: OperationalCorridor };
 type GeoPoint = { latitude: number; longitude: number };
 type Feature = { properties?: Record<string, unknown>; geometry?: { type: string; coordinates: unknown } };
 type FeatureCollection = { features?: Feature[] };
@@ -17,8 +17,6 @@ const STATE_URL = "/geo/us-states.geojson";
 const COUNTY_URLS = ["/geo/florida-counties.geojson", "/geo/georgia-counties.geojson"];
 const TAU = Math.PI * 2;
 const DEG = Math.PI / 180;
-const ROUTE_START = demoAirports[0];
-const ROUTE_END = demoAirports[2];
 
 function rings(feature: Feature): number[][][] {
   const geometry = feature.geometry;
@@ -76,11 +74,16 @@ function projectLandPoint(point: GeoPoint, width: number, height: number, view: 
 }
 
 function fitBounds(start: GeoPoint, end: GeoPoint, width: number, height: number, padding: number): ViewState {
-  const minLon = Math.min(start.longitude, end.longitude);
-  const maxLon = Math.max(start.longitude, end.longitude);
+  let endLongitude = end.longitude;
+  while (endLongitude - start.longitude > 180) endLongitude -= 360;
+  while (endLongitude - start.longitude < -180) endLongitude += 360;
+  const minLon = Math.min(start.longitude, endLongitude);
+  const maxLon = Math.max(start.longitude, endLongitude);
   const minLat = Math.min(start.latitude, end.latitude);
   const maxLat = Math.max(start.latitude, end.latitude);
-  const centerLon = (minLon + maxLon) / 2;
+  let centerLon = (minLon + maxLon) / 2;
+  while (centerLon > 180) centerLon -= 360;
+  while (centerLon < -180) centerLon += 360;
   const centerLat = (minLat + maxLat) / 2;
   const availableWidth = Math.max(1, width - padding * 2);
   const availableHeight = Math.max(1, height - padding * 2);
@@ -171,7 +174,9 @@ function drawLabels(
   ctx.restore();
 }
 
-export default function MissionControlGeospatialEngine({ aircraft = [] }: Props) {
+export default function MissionControlGeospatialEngine({ aircraft = [], corridor }: Props) {
+  const { origin, destination } = resolveCorridorAirports(corridor);
+  const domestic = corridor.category === "domestic";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const countryFeaturesRef = useRef<Feature[]>([]);
@@ -214,7 +219,8 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const route = greatCircle(ROUTE_START, ROUTE_END);
+    const route = greatCircle(origin, destination);
+    const activeAirports = [origin, destination];
     let width = 0;
     let height = 0;
     let frame = 0;
@@ -231,7 +237,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (activeViewRef.current === "operational" && !operationalFitRef.current && rect.width > 0 && rect.height > 0) {
-        viewRef.current = fitBounds(ROUTE_START, ROUTE_END, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+        viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
         operationalFitRef.current = true;
       }
     };
@@ -281,7 +287,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
       ctx.restore();
 
       // State and county boundary passes. Administrative geometry is never filled.
-      if (view.zoom >= 4.7) {
+      if (domestic && view.zoom >= 4.7) {
         ctx.save();
         ctx.beginPath();
         for (const feature of stateFeaturesRef.current) {
@@ -292,7 +298,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
         ctx.stroke();
         ctx.restore();
       }
-      if (view.zoom >= 6.25) {
+      if (domestic && view.zoom >= 6.25) {
         ctx.save();
         ctx.beginPath();
         for (const feature of countyFeaturesRef.current) {
@@ -314,7 +320,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
         { left: 0, top: height - 48, right: 245, bottom: height },
         { left: Math.max(0, width - 180), top: height - 45, right: width, bottom: height },
       ];
-      for (const airport of demoAirports) {
+      for (const airport of activeAirports) {
         const point = project(airport, width, height, view);
         occupied.push({ left: point.x - 24, right: point.x + 24, top: point.y - 28, bottom: point.y + 12 });
       }
@@ -322,7 +328,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
         const point = project(item, width, height, view);
         occupied.push({ left: point.x - 7, right: point.x + 7, top: point.y - 7, bottom: point.y + 7 });
       }
-      if (view.zoom < 4.7) {
+      if (!domestic || view.zoom < 4.7) {
         drawLabels(ctx, [{ name: "UNITED STATES", latitude: 38, longitude: -99, priority: 100 }], occupied, width, height, view,
           { font: "600 10px ui-monospace, monospace", color: "rgba(185,211,205,.58)" });
       } else {
@@ -350,7 +356,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
       ctx.stroke();
       ctx.restore();
 
-      for (const airport of demoAirports) {
+      for (const airport of activeAirports) {
         const point = project(airport, width, height, view);
         const pulse = 7 + ((now * 0.02) % 15);
         ctx.strokeStyle = `rgba(215,168,75,${0.55 - (pulse - 7) / 34})`;
@@ -383,11 +389,22 @@ export default function MissionControlGeospatialEngine({ aircraft = [] }: Props)
 
     frame = requestAnimationFrame(render);
     return () => { cancelAnimationFrame(frame); observer.disconnect(); };
-  }, []);
+  }, [corridor.id, origin, destination, domestic]);
+
+  useEffect(() => {
+    operationalFitRef.current = false;
+    if (activeViewRef.current === "operational") {
+      const { width, height } = sizeRef.current;
+      viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+      operationalFitRef.current = true;
+    }
+  // Airport records are immutable registry entries; the stable corridor id is the selection boundary.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [corridor.id]);
 
   const resetCorridor = () => {
     const { width, height } = sizeRef.current;
-    viewRef.current = fitBounds(ROUTE_START, ROUTE_END, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+    viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
     activeViewRef.current = "operational";
     operationalFitRef.current = true;
     setActiveView("operational");
