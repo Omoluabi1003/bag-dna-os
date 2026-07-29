@@ -21,6 +21,7 @@ export type AirportWeather = {
   windDirection: number | null;
   windSpeedKt: number | null;
   visibilityMi: number | null;
+  visibilityLabel: string;
   raw: string;
 };
 
@@ -46,14 +47,24 @@ export type LiveOperationsSnapshot = {
   notices: string[];
 };
 
-const OPENSKY_URL = "https://opensky-network.org/api/states/all?lamin=24.2&lomin=-84.0&lamax=35.5&lomax=-78.0";
+export const EMPTY_LIVE_OPERATIONS_SNAPSHOT: LiveOperationsSnapshot = {
+  generatedAt: new Date(0).toISOString(),
+  mode: "degraded",
+  sources: { openSky: "degraded", aviationWeather: "degraded", openMeteo: "degraded" },
+  aircraft: [],
+  airportWeather: [],
+  surfaceWeather: { temperatureC: null, windKph: null, visibilityKm: null, precipitationMm: null, weatherCode: null },
+  notices: ["Connecting to public aviation feeds…"],
+};
+
+const OPENSKY_URL = "https://opensky-network.org/api/states/all?lamin=24.2&lomin=-85.0&lamax=35.5&lomax=-78.0";
 const METAR_URL = "https://aviationweather.gov/api/data/metar?ids=KMIA,KFLL,KATL&format=json&hours=2";
 const OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast?latitude=25.7959&longitude=-80.2870&current=temperature_2m,wind_speed_10m,visibility,precipitation,weather_code&wind_speed_unit=kmh&timezone=UTC";
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {
-    headers: { "User-Agent": "BAG-DNA-OS/1.0 public-data-console" },
-    next: { revalidate: 60 },
+    cache: "no-store",
+    signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   return response.json() as Promise<T>;
@@ -83,26 +94,41 @@ function parseAircraft(payload: { states?: unknown[][] }): AircraftTrack[] {
     .slice(0, 40);
 }
 
+function parseVisibility(value: unknown): { value: number | null; label: string } {
+  if (value === null || value === undefined) return { value: null, label: "—" };
+  const raw = String(value).trim();
+  const numeric = Number.parseFloat(raw.replace("+", ""));
+  return {
+    value: Number.isFinite(numeric) ? numeric : null,
+    label: Number.isFinite(numeric) ? `${numeric}${raw.includes("+") ? "+" : ""}` : "—",
+  };
+}
+
 function parseMetars(payload: Array<Record<string, unknown>>): AirportWeather[] {
-  return payload.map((item) => ({
-    station: String(item.icaoId ?? item.stationId ?? "UNKNOWN"),
-    observedAt: String(item.reportTime ?? item.obsTime ?? ""),
-    flightCategory: String(item.fltCat ?? "N/A"),
-    temperatureC: item.temp === null || item.temp === undefined ? null : Number(item.temp),
-    windDirection: item.wdir === null || item.wdir === undefined ? null : Number(item.wdir),
-    windSpeedKt: item.wspd === null || item.wspd === undefined ? null : Number(item.wspd),
-    visibilityMi: item.visib === null || item.visib === undefined ? null : Number(item.visib),
-    raw: String(item.rawOb ?? "Observation available"),
-  }));
+  return payload.map((item) => {
+    const visibility = parseVisibility(item.visib);
+    return {
+      station: String(item.icaoId ?? item.stationId ?? "UNKNOWN"),
+      observedAt: String(item.reportTime ?? item.obsTime ?? ""),
+      flightCategory: String(item.fltCat ?? "N/A"),
+      temperatureC: item.temp === null || item.temp === undefined ? null : Number(item.temp),
+      windDirection: item.wdir === null || item.wdir === undefined ? null : Number(item.wdir),
+      windSpeedKt: item.wspd === null || item.wspd === undefined ? null : Number(item.wspd),
+      visibilityMi: visibility.value,
+      visibilityLabel: visibility.label,
+      raw: String(item.rawOb ?? "Observation available"),
+    };
+  });
 }
 
 function parseOpenMeteo(payload: { current?: Record<string, unknown> }): SurfaceWeather {
   const current = payload.current ?? {};
   const numberOrNull = (value: unknown) => Number.isFinite(Number(value)) ? Number(value) : null;
+  const visibility = numberOrNull(current.visibility);
   return {
     temperatureC: numberOrNull(current.temperature_2m),
     windKph: numberOrNull(current.wind_speed_10m),
-    visibilityKm: numberOrNull(current.visibility) === null ? null : Number(current.visibility) / 1000,
+    visibilityKm: visibility === null ? null : visibility / 1000,
     precipitationMm: numberOrNull(current.precipitation),
     weatherCode: numberOrNull(current.weather_code),
   };
@@ -116,7 +142,7 @@ export async function getLiveOperationsSnapshot(): Promise<LiveOperationsSnapsho
   ]);
 
   const notices: string[] = [];
-  if (openSky.status === "rejected") notices.push("OpenSky anonymous feed is rate-limited or temporarily unavailable.");
+  if (openSky.status === "rejected") notices.push("OpenSky anonymous feed is rate-limited, blocked by the browser, or temporarily unavailable.");
   if (metars.status === "rejected") notices.push("NOAA Aviation Weather observations are temporarily unavailable.");
   if (openMeteo.status === "rejected") notices.push("Open-Meteo surface conditions are temporarily unavailable.");
 
