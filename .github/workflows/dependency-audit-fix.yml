@@ -37,6 +37,7 @@ jobs:
           npm audit --audit-level=high
 
       - name: Upload generated lockfile
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: remediated-package-lock
