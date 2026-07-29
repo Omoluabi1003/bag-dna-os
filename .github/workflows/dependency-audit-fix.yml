@@ -1,20 +1,21 @@
-name: Dependency Audit Fix
+name: Dependency Lockfile Generator
 
 on:
-  push:
+  pull_request:
     branches:
-      - security/dependency-audit-fix
+      - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  repair:
-    if: github.actor != 'github-actions[bot]'
+  generate-lockfile:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout pull request branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -22,27 +23,23 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install locked dependencies
+      - name: Regenerate dependency lockfile
+        run: npm install --package-lock-only
+
+      - name: Install dependencies
         run: npm ci
 
-      - name: Apply safe audit fixes
-        run: npm audit fix
-
-      - name: Validate
+      - name: Validate dependency remediation
         run: |
           npm run lint
           npm run typecheck
           npm run build
           npm audit --audit-level=high
 
-      - name: Commit dependency updates
-        run: |
-          if git diff --quiet -- package.json package-lock.json; then
-            echo "No dependency changes were produced."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json package-lock.json
-          git commit -m "fix: remediate high-severity npm vulnerabilities"
-          git push
+      - name: Upload generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: remediated-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 1
