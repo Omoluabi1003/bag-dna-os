@@ -127,15 +127,21 @@ ci(actions): enable dependency review
 
 ## Repository structure
 
-| Content | Location |
+The repository currently uses the Next.js application structure below. Contributors should place new work in these locations until an architecture decision record (ADR) approves a different layout.
+
+| Purpose | Location |
 | --- | --- |
-| Applications | `apps/` |
-| Shared functionality | `packages/` |
+| Next.js App Router | `app/` |
+| Reusable UI components | `components/` |
+| Shared business logic | `lib/` |
+| Static assets | `public/` |
+| Database (Supabase) | `supabase/` |
 | Documentation | `docs/` |
-| Infrastructure | `infrastructure/` |
-| Automation | `scripts/` |
+| Configuration | Repository root (`*.config.*`, `package.json`, and related files) |
 
 Tests belong alongside code where practical, with integration suites in dedicated test directories.
+
+As BAG-DNA OS grows into a multi-package platform, the repository may transition to a workspace layout with `apps/`, `packages/`, `infrastructure/`, and `scripts/`. That future structure must be proposed and accepted through an ADR before implementation; it is not the current contributor convention.
 
 ## Code style
 
