@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:corridors": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/airport-corridors.test.ts lib/operations/airports.ts lib/operations/corridorGeometry.ts && node --test .test-dist/tests/airport-corridors.test.js"
+    "test:corridors": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/airport-corridors.test.ts tests/geospatial-engine.test.ts lib/operations/airports.ts lib/operations/corridorGeometry.ts lib/operations/mapProjection.ts && node --test .test-dist/tests/*.test.js; status=$?; rm -rf .test-dist; exit $status"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
