@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { countyLabels, placeLabels, stateLabels, type MapLabel } from "@/lib/geospatialLabels";
 import type { AircraftTrack } from "@/lib/integrations/liveOperations";
-import { resolveCorridorAirports, type OperationalCorridor } from "@/lib/operations/corridors";
+import { resolveCorridor, type OperationalCorridor } from "@/lib/operations/corridors";
+import { computeCorridorBounds } from "@/lib/operations/corridorGeometry";
 
 type Props = { aircraft?: AircraftTrack[]; corridor: OperationalCorridor };
 type GeoPoint = { latitude: number; longitude: number };
@@ -73,14 +74,12 @@ function projectLandPoint(point: GeoPoint, width: number, height: number, view: 
   };
 }
 
-function fitBounds(start: GeoPoint, end: GeoPoint, width: number, height: number, padding: number): ViewState {
-  let endLongitude = end.longitude;
-  while (endLongitude - start.longitude > 180) endLongitude -= 360;
-  while (endLongitude - start.longitude < -180) endLongitude += 360;
-  const minLon = Math.min(start.longitude, endLongitude);
-  const maxLon = Math.max(start.longitude, endLongitude);
-  const minLat = Math.min(start.latitude, end.latitude);
-  const maxLat = Math.max(start.latitude, end.latitude);
+function fitBounds(route: GeoPoint[], width: number, height: number, padding: number): ViewState {
+  const bounds = computeCorridorBounds(route);
+  const minLon = bounds.minLongitude;
+  const maxLon = bounds.maxLongitude;
+  const minLat = bounds.minLatitude;
+  const maxLat = bounds.maxLatitude;
   let centerLon = (minLon + maxLon) / 2;
   while (centerLon > 180) centerLon -= 360;
   while (centerLon < -180) centerLon += 360;
@@ -174,8 +173,8 @@ function drawLabels(
   ctx.restore();
 }
 
-export default function MissionControlGeospatialEngine({ aircraft = [], corridor }: Props) {
-  const { origin, destination } = resolveCorridorAirports(corridor);
+function ResolvedMissionControlGeospatialEngine({ aircraft = [], corridor, resolved }: Props & { resolved: NonNullable<ReturnType<typeof resolveCorridor>> }) {
+  const { origin, destination } = resolved;
   const domestic = corridor.category === "domestic";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -237,7 +236,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [], corridor
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (activeViewRef.current === "operational" && !operationalFitRef.current && rect.width > 0 && rect.height > 0) {
-        viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+        viewRef.current = fitBounds(greatCircle(origin, destination), width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
         operationalFitRef.current = true;
       }
     };
@@ -366,7 +365,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [], corridor
         ctx.font = "700 10px ui-monospace, SFMono-Regular, Menlo, monospace";
         ctx.textAlign = "center";
         ctx.fillStyle = "rgba(255,255,255,.95)";
-        ctx.fillText(airport.code, point.x, point.y - 14);
+        ctx.fillText(airport.iataCode, point.x, point.y - 14);
       }
 
       for (const track of aircraftRef.current.slice(0, 120)) {
@@ -395,7 +394,7 @@ export default function MissionControlGeospatialEngine({ aircraft = [], corridor
     operationalFitRef.current = false;
     if (activeViewRef.current === "operational") {
       const { width, height } = sizeRef.current;
-      viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+      viewRef.current = fitBounds(greatCircle(origin, destination), width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
       operationalFitRef.current = true;
     }
   // Airport records are immutable registry entries; the stable corridor id is the selection boundary.
@@ -404,16 +403,14 @@ export default function MissionControlGeospatialEngine({ aircraft = [], corridor
 
   const resetCorridor = () => {
     const { width, height } = sizeRef.current;
-    viewRef.current = fitBounds(origin, destination, width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
+    viewRef.current = fitBounds(greatCircle(origin, destination), width, height, Math.min(90, Math.max(42, Math.min(width, height) * 0.16)));
     activeViewRef.current = "operational";
     operationalFitRef.current = true;
     setActiveView("operational");
   };
   const showWorld = () => {
     const { width, height } = sizeRef.current;
-    viewRef.current = fitBounds(
-      { longitude: -180, latitude: -72 }, { longitude: 180, latitude: 78 }, width, height, 24,
-    );
+    viewRef.current = fitBounds([{ longitude: -180, latitude: -72 }, { longitude: 180, latitude: 78 }], width, height, 24);
     activeViewRef.current = "global";
     setActiveView("global");
   };
@@ -452,4 +449,10 @@ export default function MissionControlGeospatialEngine({ aircraft = [], corridor
       </div>
     </div>
   );
+}
+
+export default function MissionControlGeospatialEngine(props: Props) {
+  const resolved = resolveCorridor(props.corridor);
+  if (!resolved) return <div role="status" className="flex h-full items-center justify-center bg-[#02070d] p-8 text-center text-sm text-amber-200">Route unavailable — airport data could not be validated.</div>;
+  return <ResolvedMissionControlGeospatialEngine {...props} resolved={resolved} />;
 }

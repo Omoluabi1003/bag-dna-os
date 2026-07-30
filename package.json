@@ -8,7 +8,8 @@
     "build:pages": "PAGES_BUILD=true next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:corridors": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/airport-corridors.test.ts lib/operations/airports.ts lib/operations/corridorGeometry.ts && node --test .test-dist/tests/airport-corridors.test.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
