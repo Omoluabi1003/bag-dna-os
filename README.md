@@ -72,6 +72,8 @@ The repository includes implementation-ready controls for:
 
 See `docs/COMPLIANCE_ROADMAP.md`, `docs/CONTROL_REGISTER.md`, `docs/AI_GOVERNANCE.md`, `docs/PRIVACY_OPERATIONS.md`, `docs/INCIDENT_RESPONSE.md`, and `docs/AVIATION_CONTROL_MAPPING.md`.
 
+Contributors should also follow the day-to-day lifecycle, coding, testing, review, release, security, and operational practices in `docs/ENGINEERING_HANDBOOK.md`.
+
 These controls establish engineering and audit readiness. They do not constitute certification, regulatory approval, or proof that production controls are operating effectively.
 
 ## Technology
