@@ -19,6 +19,15 @@ test("Result helpers create discriminated success and failure values", () => {
 
   assert.equal(isOk(success), true);
   assert.equal(isErr(failure), true);
+
+  if (!isOk(success)) {
+    assert.fail("Expected a successful Result");
+  }
+
+  if (!isErr(failure)) {
+    assert.fail("Expected a failed Result");
+  }
+
   assert.deepEqual(success.data, { value: 42 });
   assert.equal(failure.error.message, "failure");
 });
