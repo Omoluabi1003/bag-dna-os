@@ -151,3 +151,9 @@ The deployment pathway begins with a controlled international airport demonstrat
 BAG-DNA OS was developed by Paul Iyogun. The platform reflects his experience in enterprise GIS architecture, AI-integrated automation, spatial analytics, digital governance modernization, public-sector decision systems, operational intelligence dashboards, and data-driven security workflows.
 
 > This repository is an investor- and pilot-ready MVP using realistic demonstration data. Production deployment requires stakeholder governance, privacy and security review, system integration, hardware certification, regulatory engagement, and operating-procedure validation.
+
+## Regional public intelligence
+
+The Digital Twin and Intelligence Center include **Airport & corridor watch**. Select an airport or reference corridor, configure distance and earthquake magnitude, then activate USGS earthquakes or NASA natural events. Use **Show regional map** for event markers and **Enable watch alerts** for in-page review signals. Sources load on demand; refresh manually and inspect both retrieval and observation timestamps. Unavailable sources are explicitly labelled and do not use demonstration events.
+
+Public event proximity does not establish flight disruption, baggage position, custody verification, or identity confidence. Alerts are local to the open panel, not background notifications. See `docs/adr/ADR-0004-regional-public-context.md` for source limits, governance, operating behavior and rollback. Run `npm run test:regional-context` for the new regression coverage.

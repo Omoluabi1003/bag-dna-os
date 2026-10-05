@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test:core": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/platform-core.test.ts lib/core/index.ts lib/core/config/index.ts lib/core/errors/index.ts lib/core/events/index.ts lib/core/ids/index.ts lib/core/logging/index.ts lib/core/result/index.ts lib/core/time/index.ts lib/core/validation/index.ts && node --test .test-dist/tests/platform-core.test.js; status=$?; rm -rf .test-dist; exit $status",
-    "test:corridors": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/airport-corridors.test.ts tests/geospatial-engine.test.ts lib/operations/airports.ts lib/operations/corridorGeometry.ts lib/operations/mapProjection.ts && node --test .test-dist/tests/*.test.js; status=$?; rm -rf .test-dist; exit $status"
+    "test:corridors": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/airport-corridors.test.ts tests/geospatial-engine.test.ts lib/operations/airports.ts lib/operations/corridorGeometry.ts lib/operations/mapProjection.ts && node --test .test-dist/tests/*.test.js; status=$?; rm -rf .test-dist; exit $status",
+    "test:regional-context": "rm -rf .test-dist && tsc --outDir .test-dist --module commonjs --moduleResolution node --target es2022 --esModuleInterop --skipLibCheck tests/regional-context.test.ts && node --test .test-dist/tests/regional-context.test.js; status=$?; rm -rf .test-dist; exit $status"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
@@ -20,7 +21,7 @@
     "framer-motion": "^11.18.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
-    "next": "16.2.12",
+    "next": "16.3.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
@@ -35,7 +36,7 @@
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.8",
     "postcss": "^8.5.18",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
@@ -45,6 +46,6 @@
       "postcss": "^8.5.18"
     },
     "js-yaml": "^4.2.1",
-    "sharp": "^0.35.0"
+    "sharp": "^0.35.4"
   }
 }
