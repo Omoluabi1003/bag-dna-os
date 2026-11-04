@@ -1,5 +1,19 @@
 # BAG-DNA OS™
 
+## Project at a glance
+
+**Category:** Aviation baggage identity and custody platform  
+**Purpose:** Develop identity, tracking, geospatial digital-twin and evidence concepts for baggage operations  
+**Audience:** Users, implementers, contributors and potential partners  
+**Code:** https://github.com/Omoluabi1003/bag-dna-os
+
+**Implementation context:** Security and aviation claims require validated operational integrations; product vision does not establish certified airport deployment.
+
+The sections below describe the product philosophy, architecture and available development workflows. Confirm feature readiness through the actual code and release before using it operationally.
+
+---
+
+
 **Every passenger has an identity. Every bag should too.**
 
 BAG-DNA OS is a global digital baggage identity, AI chain-of-custody, GIS digital twin, and aviation security intelligence operating system for checked baggage. It is **Developed by Paul Iyogun** for airports, airlines, aviation authorities, customs and border agencies, insurers, security teams, and passengers.
